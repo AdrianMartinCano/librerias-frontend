@@ -1,0 +1,12 @@
+{
+  "name": "@adrianmartincano/ng-theme",
+  "version": "0.3.8",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "main": "index.css",
+  "style": "index.css",
+  "files": [
+    "index.css"
+  ]
+}

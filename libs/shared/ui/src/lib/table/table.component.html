@@ -1,0 +1,67 @@
+<div class="lib-table-wrapper">
+  <div class="lib-table-scroll">
+    <table class="lib-table" [class.lib-table--striped]="striped()">
+      <thead class="lib-table__head">
+        <tr>
+          @for (col of computedColumns(); track col.key) {
+            <th
+              class="lib-table__th"
+              [class.lib-table__th--sortable]="col.sortable !== false && sortable()"
+              [class.lib-table__th--sorted]="sortKey() === col.key"
+              [style.width]="col.width || 'auto'"
+              [style.text-align]="col.align || 'left'"
+              (click)="onSortClick(col)"
+            >
+              <span class="lib-table__th-inner">
+                {{ col.label }}
+                @if (col.sortable !== false && sortable()) {
+                  <span class="lib-table__sort-icon">
+                    {{ sortKey() === col.key ? (sortDir() === 'asc' ? '↑' : '↓') : '↕' }}
+                  </span>
+                }
+              </span>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody class="lib-table__body">
+        @if (sortedData().length === 0) {
+          <tr>
+            <td [attr.colspan]="computedColumns().length" class="lib-table__empty">
+              {{ emptyMessage() }}
+            </td>
+          </tr>
+        }
+        @for (row of sortedData(); track $index) {
+          <tr class="lib-table__row">
+            @for (col of computedColumns(); track col.key) {
+              <td
+                class="lib-table__td"
+                [style.text-align]="col.align || 'left'"
+                [attr.data-label]="col.label"
+              >
+                @if (col.type === 'badge') {
+                  <span
+                    class="lib-table__badge"
+                    [style.background]="col.badgeMap?.[getCellStr(row, col.key)] || 'var(--color-primary, #1e1e1e)'"
+                  >
+                    {{ formatValue(getCellValue(row, col.key), col, row) }}
+                  </span>
+                } @else if (col.type === 'boolean') {
+                  <span
+                    class="lib-table__bool"
+                    [class.lib-table__bool--true]="getCellValue(row, col.key)"
+                  >
+                    {{ getCellValue(row, col.key) ? '✓' : '✗' }}
+                  </span>
+                } @else {
+                  {{ formatValue(getCellValue(row, col.key), col, row) }}
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

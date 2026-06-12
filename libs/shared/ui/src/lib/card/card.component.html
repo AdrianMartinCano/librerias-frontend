@@ -1,0 +1,48 @@
+<article
+  class="lib-card"
+  [class.lib-card--clickable]="routerLink() || clickable()"
+  [class.lib-card--flat]="flat()"
+>
+  @if (image()) {
+    <div class="lib-card__media">
+      @if (routerLink()) {
+        <a [routerLink]="routerLink()" tabindex="-1">
+          <img [src]="image()" [alt]="imageAlt() || title() || 'Imagen'" class="lib-card__img" />
+        </a>
+      } @else {
+        <img [src]="image()" [alt]="imageAlt() || title() || 'Imagen'" class="lib-card__img" />
+      }
+      @if (badge()) {
+        <span class="lib-card__badge">{{ badge() }}</span>
+      }
+    </div>
+  }
+
+  <div class="lib-card__body">
+    @if (title() || subtitle()) {
+      <div class="lib-card__header">
+        @if (!image() && badge()) {
+          <span class="lib-card__badge lib-card__badge--inline">{{ badge() }}</span>
+        }
+        @if (title()) {
+          <h3 class="lib-card__title">
+            @if (routerLink()) {
+              <a [routerLink]="routerLink()" class="lib-card__title-link">{{ title() }}</a>
+            } @else {
+              {{ title() }}
+            }
+          </h3>
+        }
+        @if (subtitle()) {
+          <p class="lib-card__subtitle">{{ subtitle() }}</p>
+        }
+      </div>
+    }
+
+    <div class="lib-card__content">
+      <ng-content />
+    </div>
+  </div>
+
+  <ng-content select="[slot=footer]" />
+</article>

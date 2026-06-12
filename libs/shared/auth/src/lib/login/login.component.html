@@ -1,0 +1,145 @@
+<div class="lib-login">
+  <div class="lib-login__card">
+
+    <!-- Cabecera -->
+    <div class="lib-login__header">
+      @if (logo()) {
+        <img [src]="logo()" [alt]="logoText() || 'Logo'" class="lib-login__logo" />
+      }
+      @if (logoText()) {
+        <p class="lib-login__logo-text">{{ logoText() }}</p>
+      }
+      <h1 class="lib-login__title">{{ mode() === 'login' ? title() : registerTitle() }}</h1>
+      @if (subtitle()) {
+        <p class="lib-login__subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+
+    <!-- Formulario -->
+    <form class="lib-login__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      @if (mode() === 'register') {
+        <div class="lib-login__field">
+          <label class="lib-label" for="auth-name">Nombre</label>
+          <input
+            id="auth-name"
+            class="lib-input"
+            [class.lib-input--error]="hasError('name')"
+            type="text"
+            formControlName="name"
+            placeholder="Tu nombre completo"
+            autocomplete="name"
+          />
+          @if (hasError('name')) {
+            <p class="lib-field-error">El nombre es obligatorio</p>
+          }
+        </div>
+      }
+
+      <div class="lib-login__field">
+        <label class="lib-label" for="auth-email">Email</label>
+        <input
+          id="auth-email"
+          class="lib-input"
+          [class.lib-input--error]="hasError('email')"
+          type="email"
+          formControlName="email"
+          placeholder="tu@email.com"
+          autocomplete="email"
+        />
+        @if (hasError('email')) {
+          <p class="lib-field-error">Introduce un email válido</p>
+        }
+      </div>
+
+      <div class="lib-login__field">
+        <div class="lib-login__label-row">
+          <label class="lib-label" for="auth-password">Contraseña</label>
+          @if (mode() === 'login' && forgotPasswordUrl()) {
+            <a class="lib-login__forgot" [href]="forgotPasswordUrl()">¿Olvidaste la contraseña?</a>
+          }
+        </div>
+        <input
+          id="auth-password"
+          class="lib-input"
+          [class.lib-input--error]="hasError('password')"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+        @if (hasError('password')) {
+          <p class="lib-field-error">La contraseña es obligatoria (mínimo 6 caracteres)</p>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <div class="lib-login__alert">{{ errorMessage() }}</div>
+      }
+
+      <button
+        type="submit"
+        class="lib-login__submit"
+        [class.lib-login__submit--loading]="loading()"
+        [disabled]="loading()"
+      >
+        @if (loading()) { <span class="lib-login__spinner"></span> }
+        {{ mode() === 'login' ? submitLabel() : registerSubmitLabel() }}
+      </button>
+
+    </form>
+
+    <!-- Separador social -->
+    @if (socialProviders().length > 0) {
+      <div class="lib-login__divider">
+        <span>o continuar con</span>
+      </div>
+
+      <div
+        class="lib-login__social"
+        [class.lib-login__social--icons-only]="!showSocialText()"
+      >
+        @for (provider of safeProviders(); track provider.id) {
+          <button
+            type="button"
+            class="lib-login__social-btn"
+            [class.lib-login__social-btn--icon-only]="!showSocialText()"
+            [style.background]="provider.bgColor || 'var(--color-surface)'"
+            [style.color]="provider.textColor || 'var(--color-text)'"
+            [attr.title]="!showSocialText() ? provider.label : null"
+            [attr.aria-label]="provider.label"
+            (click)="onSocialClick(provider)"
+          >
+            @if (provider.safeIcon) {
+              <span class="lib-login__social-icon" [innerHTML]="provider.safeIcon"></span>
+            }
+            @if (showSocialText()) {
+              <span class="lib-login__social-label">{{ provider.label }}</span>
+            }
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Pie -->
+    <div class="lib-login__footer">
+      @if (mode() === 'login' && showRegister()) {
+        <p>
+          ¿No tienes cuenta?
+          <button type="button" class="lib-login__switch" (click)="switchMode('register')">
+            Crear cuenta
+          </button>
+        </p>
+      }
+      @if (mode() === 'register') {
+        <p>
+          ¿Ya tienes cuenta?
+          <button type="button" class="lib-login__switch" (click)="switchMode('login')">
+            Iniciar sesión
+          </button>
+        </p>
+      }
+    </div>
+
+  </div>
+</div>

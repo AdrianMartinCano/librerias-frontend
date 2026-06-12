@@ -1,0 +1,26 @@
+.cms-ti__container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8, 2rem);
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .cms-ti__container { grid-template-columns: 1fr 1fr; gap: var(--space-12, 3rem); }
+  .cms-ti--reverse .cms-ti__text { order: 2; }
+  .cms-ti--reverse .cms-ti__image { order: 1; }
+}
+
+.cms-ti__title { font-size: var(--font-size-2xl, 1.5rem); font-weight: var(--font-weight-bold, 700); color: var(--color-text, #1a1a1a); margin: 0 0 var(--space-4, 1rem); }
+.cms-ti__body  { color: var(--color-text-secondary, #595959); line-height: var(--line-height-relaxed, 1.75); margin: 0 0 var(--space-4, 1rem); white-space: pre-line; }
+
+.cms-ti__btn {
+  display: inline-flex; align-items: center;
+  padding: var(--space-3, .75rem) var(--space-5, 1.25rem);
+  background: var(--color-accent, #ff4d4d); color: #fff;
+  border-radius: var(--radius-md, .5rem); font-weight: 600; text-decoration: none;
+  transition: background var(--transition-fast, 120ms ease);
+}
+.cms-ti__btn:hover { background: var(--color-accent-hover, #e63e3e); }
+
+.cms-ti__img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: var(--radius-xl, 1rem); }

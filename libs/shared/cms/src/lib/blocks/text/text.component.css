@@ -1,0 +1,6 @@
+.cms-text__inner { max-width: 720px; margin-inline: auto; }
+.cms-text__content { color: var(--color-text-secondary, #595959); line-height: var(--line-height-relaxed, 1.75); }
+.cms-text__content h1, .cms-text__content h2, .cms-text__content h3 { color: var(--color-text, #1a1a1a); margin-bottom: var(--space-3, .75rem); }
+.cms-text__content p { margin-bottom: var(--space-4, 1rem); }
+.cms-text__content a { color: var(--color-accent, #ff4d4d); }
+.cms-text__content strong { color: var(--color-text, #1a1a1a); }

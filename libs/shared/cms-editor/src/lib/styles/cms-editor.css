@@ -1,0 +1,109 @@
+/* Estilos base del editor CMS — importar globalmente en la app que use esta lib */
+
+.cms-block-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cms-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.875rem;
+}
+
+.cms-field span {
+  font-weight: 600;
+  color: var(--color-text-muted, #555);
+}
+
+.cms-field input,
+.cms-field select,
+.cms-field textarea {
+  border: 1px solid var(--color-border, #ccc);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: var(--color-background, #fff);
+  color: var(--color-text, #111);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cms-field input:focus,
+.cms-field select:focus,
+.cms-field textarea:focus {
+  outline: none;
+  border-color: var(--color-accent, #ff4d4d);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent, #ff4d4d) 20%, transparent);
+}
+
+.cms-field--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.cms-field--row input[type="checkbox"] {
+  width: auto;
+}
+
+.cms-fieldset {
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cms-fieldset legend {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0 4px;
+  color: var(--color-text-muted, #666);
+}
+
+.cms-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 120ms, transform 120ms;
+  font-family: inherit;
+}
+
+.cms-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.cms-btn--primary {
+  background: var(--color-accent, #ff4d4d);
+  color: #fff;
+  border-color: var(--color-accent, #ff4d4d);
+}
+
+.cms-btn--secondary {
+  background: transparent;
+  border-color: var(--color-border, #ccc);
+  color: var(--color-text, #111);
+}
+
+.cms-btn--danger {
+  background: transparent;
+  border-color: #e53e3e;
+  color: #e53e3e;
+}
+
+.cms-btn:not(:disabled):hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}

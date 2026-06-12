@@ -1,0 +1,161 @@
+<nav class="lib-nav" [class.lib-nav--scrolled]="scrolled()">
+  <div class="lib-nav__container">
+
+    <a class="lib-nav__brand" [routerLink]="logoPath()">
+      @if (logo()) {
+        <img [src]="logo()" [alt]="logoText() || 'Logo'" class="lib-nav__logo-img" />
+      }
+      @if (logoText()) {
+        <span class="lib-nav__logo-text">{{ logoText() }}</span>
+      }
+    </a>
+
+    <div class="lib-nav__right">
+
+      <div class="lib-nav__menu" [class.lib-nav__menu--open]="menuOpen()">
+        @for (item of items(); track item.label) {
+          @if (!item.children?.length) {
+            @if (item.external) {
+              <a class="lib-nav__link" [href]="item.path" target="_blank" rel="noopener" (click)="closeMenu()">
+                {{ item.label }}
+                @if (item.badge) { <span class="lib-nav__badge">{{ item.badge }}</span> }
+              </a>
+            } @else {
+              <a
+                class="lib-nav__link"
+                [routerLink]="item.path"
+                routerLinkActive="lib-nav__link--active"
+                [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+                (click)="closeMenu()"
+              >
+                {{ item.label }}
+                @if (item.badge) { <span class="lib-nav__badge">{{ item.badge }}</span> }
+              </a>
+            }
+          } @else {
+            <div class="lib-nav__dropdown" [class.lib-nav__dropdown--open]="activeDropdown() === item.label">
+              <button
+                class="lib-nav__link lib-nav__link--parent"
+                (click)="toggleDropdown(item.label)"
+                [attr.aria-expanded]="activeDropdown() === item.label"
+              >
+                {{ item.label }}
+                <svg class="lib-nav__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </button>
+              <div class="lib-nav__dropdown-menu">
+                @for (child of item.children; track child.label) {
+                  @if (child.external) {
+                    <a class="lib-nav__dropdown-item" [href]="child.path" target="_blank" rel="noopener" (click)="closeMenu()">
+                      {{ child.label }}
+                    </a>
+                  } @else {
+                    <a
+                      class="lib-nav__dropdown-item"
+                      [routerLink]="child.path"
+                      routerLinkActive="lib-nav__dropdown-item--active"
+                      (click)="closeMenu()"
+                    >{{ child.label }}</a>
+                  }
+                }
+              </div>
+            </div>
+          }
+        }
+        <ng-content />
+      </div>
+
+      <div class="lib-nav__controls">
+        <!-- Carrito -->
+        @if (showCart()) {
+          <button
+            class="lib-nav__icon-btn lib-nav__cart-btn"
+            (click)="cartClick.emit()"
+            title="Carrito de compra"
+            aria-label="Carrito de compra"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            @if (cartCount() > 0) {
+              <span class="lib-nav__cart-badge">{{ cartCount() > 99 ? '99+' : cartCount() }}</span>
+            }
+          </button>
+        }
+
+        @if (showThemeToggle()) {
+          <button
+            class="lib-nav__icon-btn"
+            (click)="theme.toggle()"
+            [title]="theme.isDark() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+            [attr.aria-label]="theme.isDark() ? 'Modo claro' : 'Modo oscuro'"
+          >
+            @if (theme.isDark()) {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            }
+          </button>
+        }
+
+        @if (languages().length > 1) {
+          <div class="lib-nav__lang" [class.lib-nav__lang--open]="langOpen()">
+            <button
+              class="lib-nav__icon-btn lib-nav__lang-btn"
+              (click)="toggleLang()"
+              [attr.aria-expanded]="langOpen()"
+              title="Cambiar idioma"
+            >
+              <span class="lib-nav__lang-current">
+                {{ currentLang()?.flag || currentLang()?.code?.toUpperCase() || '🌐' }}
+              </span>
+              <svg class="lib-nav__chevron lib-nav__chevron--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="lib-nav__lang-menu">
+              @for (lang of languages(); track lang.code) {
+                <button
+                  class="lib-nav__lang-item"
+                  [class.lib-nav__lang-item--active]="i18n.currentCode() === lang.code"
+                  (click)="selectLang(lang.code)"
+                >
+                  @if (lang.flag) { <span>{{ lang.flag }}</span> }
+                  {{ lang.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <button
+        class="lib-nav__burger"
+        [class.lib-nav__burger--open]="menuOpen()"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-label="Menú"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+    </div>
+  </div>
+</nav>

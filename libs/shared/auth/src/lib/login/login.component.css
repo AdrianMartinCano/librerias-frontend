@@ -1,0 +1,228 @@
+.lib-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4, 1rem);
+  background: var(--color-surface, #f8f9fa);
+}
+
+.lib-login__card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-background, #fff);
+  border-radius: var(--radius-xl, 1rem);
+  border: 1px solid var(--color-border, #e0e0e0);
+  padding: var(--space-8, 2rem);
+  box-shadow: var(--shadow-lg, 0 10px 15px rgba(0,0,0,.1));
+}
+
+/* ── Cabecera ── */
+.lib-login__header {
+  text-align: center;
+  margin-bottom: var(--space-6, 1.5rem);
+}
+
+.lib-login__logo {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto var(--space-3, 0.75rem);
+}
+
+.lib-login__logo-text {
+  font-size: var(--font-size-xl, 1.25rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text, #1e1e1e);
+  margin-bottom: var(--space-2, 0.5rem);
+}
+
+.lib-login__title {
+  font-size: var(--font-size-2xl, 1.5rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text, #1e1e1e);
+  margin: 0 0 var(--space-1, 0.25rem);
+}
+
+.lib-login__subtitle {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary, #666);
+  margin: 0;
+}
+
+/* ── Formulario (input/label/error → libs/shared/theme/index.css) ── */
+.lib-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+}
+
+.lib-login__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.lib-login__label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.lib-login__forgot {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-accent, #ff4d4d);
+  text-decoration: none;
+}
+
+.lib-login__forgot:hover { text-decoration: underline; }
+
+.lib-login__alert {
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border-radius: var(--radius-md, 0.5rem);
+  background: color-mix(in srgb, var(--color-danger, #dc3545) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-danger, #dc3545) 30%, transparent);
+  color: var(--color-danger, #dc3545);
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.lib-login__submit {
+  width: 100%;
+  padding: var(--space-3, 0.75rem);
+  background: var(--color-accent, #ff4d4d);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md, 0.5rem);
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  transition: background var(--transition-fast, 120ms ease);
+  margin-top: var(--space-2, 0.5rem);
+}
+
+.lib-login__submit:hover:not(:disabled) { background: var(--color-accent-hover, #e63e3e); }
+.lib-login__submit:disabled,
+.lib-login__submit--loading { opacity: 0.7; cursor: not-allowed; }
+
+/* Spinner del botón de submit — reutiliza @keyframes lib-spin del theme */
+.lib-login__spinner {
+  display: inline-block;
+  width: 1em; height: 1em;
+  border: 2px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: lib-spin .65s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Separador ── */
+.lib-login__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  margin: var(--space-6, 1.5rem) 0 var(--space-4, 1rem);
+  color: var(--color-text-muted, #999);
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.lib-login__divider::before,
+.lib-login__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border, #e0e0e0);
+}
+
+/* ── Botones sociales ── */
+.lib-login__social {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+/* Modo solo icono: horizontal y centrado */
+.lib-login__social--icons-only {
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3, 0.75rem);
+}
+
+/* Botón con texto (por defecto) */
+.lib-login__social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: var(--radius-md, 0.5rem);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity var(--transition-fast, 120ms ease),
+              transform var(--transition-fast, 120ms ease);
+}
+
+/* Botón solo icono: circular */
+.lib-login__social-btn--icon-only {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lib-login__social-btn:hover   { opacity: 0.85; transform: translateY(-2px); }
+.lib-login__social-btn:active  { transform: scale(0.95); }
+
+.lib-login__social-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lib-login__social-btn--icon-only .lib-login__social-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.lib-login__social-icon svg { width: 100%; height: 100%; }
+
+.lib-login__social-label { flex: 1; text-align: center; }
+
+/* ── Pie ── */
+.lib-login__footer {
+  text-align: center;
+  margin-top: var(--space-6, 1.5rem);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary, #666);
+}
+
+.lib-login__switch {
+  background: none;
+  border: none;
+  color: var(--color-accent, #ff4d4d);
+  font-weight: var(--font-weight-semibold, 600);
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+}
+
+.lib-login__switch:hover { text-decoration: underline; }
+
+/* ── Responsive ── */
+@media (max-width: 479px) {
+  .lib-login__card { padding: var(--space-6, 1.5rem); }
+}

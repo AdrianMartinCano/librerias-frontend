@@ -1,0 +1,55 @@
+<div class="lib-cart">
+  @if (items().length === 0) {
+    <div class="lib-cart__empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="lib-cart__empty-icon">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+      </svg>
+      <p>{{ emptyMessage() }}</p>
+    </div>
+  } @else {
+    <ul class="lib-cart__list">
+      @for (item of items(); track item.product.id) {
+        <li class="lib-cart__item">
+          <img [src]="item.product.imageUrl" [alt]="item.product.name" class="lib-cart__img" />
+
+          <div class="lib-cart__info">
+            <p class="lib-cart__name">{{ item.product.name }}</p>
+            <p class="lib-cart__unit-price">{{ formatPrice(item.product.price) }} / ud.</p>
+          </div>
+
+          <div class="lib-cart__qty">
+            <button type="button" class="lib-cart__qty-btn" (click)="changeQty(item, -1)" [attr.aria-label]="'Reducir cantidad de ' + item.product.name">−</button>
+            <span class="lib-cart__qty-value">{{ item.quantity }}</span>
+            <button type="button" class="lib-cart__qty-btn" (click)="changeQty(item, +1)" [attr.aria-label]="'Aumentar cantidad de ' + item.product.name">+</button>
+          </div>
+
+          <span class="lib-cart__subtotal">{{ formatPrice(item.product.price * item.quantity) }}</span>
+
+          <button type="button" class="lib-cart__remove" (click)="removeItem(item)" [attr.aria-label]="'Eliminar ' + item.product.name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </li>
+      }
+    </ul>
+
+    <div class="lib-cart__footer">
+      <div class="lib-cart__total-row">
+        <span class="lib-cart__total-label">Total</span>
+        <span class="lib-cart__total-amount">{{ formatPrice(total()) }}</span>
+      </div>
+
+      @if (showCheckoutBtn()) {
+        <button type="button" class="lib-cart__checkout-btn" (click)="checkout.emit()">
+          {{ checkoutLabel() }}
+        </button>
+      }
+
+      @if (showClearBtn() && items().length > 0) {
+        <button type="button" class="lib-cart__clear-btn" (click)="clearCart.emit()">
+          Vaciar carrito
+        </button>
+      }
+    </div>
+  }
+</div>

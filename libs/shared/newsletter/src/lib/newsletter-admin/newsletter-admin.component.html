@@ -1,0 +1,112 @@
+<div class="nl-admin">
+
+  <lib-card title="Suscriptores" [subtitle]="(subscribers()?.total ?? 0) + ' en total'">
+    <div class="nl-admin__toolbar">
+      <select
+        class="lib-input nl-admin__select"
+        [value]="statusFilter()"
+        (change)="onStatusFilterChange($any($event.target).value)"
+      >
+        <option value="">Todos los estados</option>
+        <option value="confirmed">Confirmados</option>
+        <option value="pending">Pendientes</option>
+        <option value="unsubscribed">Bajas</option>
+      </select>
+
+      <lib-button variant="outline" size="sm" (clicked)="exportCsv()">Exportar CSV</lib-button>
+    </div>
+
+    <lib-table
+      [data]="subscribers()?.items ?? []"
+      [columns]="subscriberColumns"
+      emptyMessage="No hay suscriptores"
+    />
+
+    @if (subscribers(); as page) {
+      <div class="nl-admin__pagination">
+        <lib-button variant="ghost" size="sm" [disabled]="page.page === 0" (clicked)="prevSubscribersPage()">← Anterior</lib-button>
+        <span class="nl-admin__page-info">Página {{ page.page + 1 }} de {{ page.totalPages || 1 }}</span>
+        <lib-button variant="ghost" size="sm" [disabled]="!page.hasNext" (clicked)="nextSubscribersPage()">Siguiente →</lib-button>
+      </div>
+    }
+  </lib-card>
+
+  <lib-card title="Nueva campaña" subtitle="Se enviará por email a todos los suscriptores confirmados">
+    <form class="nl-admin__form" [formGroup]="campaignForm" (ngSubmit)="onSendCampaign()" novalidate>
+      <div class="nl-admin__field">
+        <label for="nl-campaign-subject">Asunto</label>
+        <input id="nl-campaign-subject" type="text" class="lib-input" formControlName="subject" />
+      </div>
+
+      <div class="nl-admin__field">
+        <label for="nl-campaign-body">Contenido (se admite HTML)</label>
+        <textarea id="nl-campaign-body" class="lib-input" rows="10" formControlName="body"></textarea>
+      </div>
+
+      <div class="nl-admin__field">
+        <label for="nl-campaign-template">Plantilla</label>
+        <select id="nl-campaign-template" class="lib-input" formControlName="templateId">
+          <option value="">Sin plantilla (enviar tal cual)</option>
+          @for (tpl of templates(); track tpl.id) {
+            <option [value]="tpl.id">{{ tpl.name }}</option>
+          }
+        </select>
+        @if (campaignForm.value.templateId) {
+          <p class="nl-admin__hint">
+            {{ templates().find(t => t.id === campaignForm.value.templateId)?.description }}
+          </p>
+        } @else {
+          <p class="nl-admin__hint">El contenido se enviará tal cual lo escribas, sin envoltorio.</p>
+        }
+      </div>
+
+      <p class="nl-admin__recipients">
+        Destinatarios actuales: <strong>{{ confirmedCount() ?? '…' }}</strong> suscriptor(es) confirmado(s)
+      </p>
+
+      @if (sendStatus() === 'success') {
+        <p class="nl-admin__success">Campaña enviada correctamente.</p>
+      }
+      @if (sendStatus() === 'error') {
+        <p class="lib-field-error">{{ sendError() ?? 'No se ha podido enviar la campaña.' }}</p>
+      }
+
+      <div class="nl-admin__actions">
+        <lib-button type="button" variant="outline" [loading]="previewStatus() === 'loading'" (clicked)="onPreviewCampaign()">
+          Vista previa
+        </lib-button>
+        <lib-button type="submit" variant="accent" [loading]="sendStatus() === 'loading'" [disabled]="campaignForm.invalid">
+          Enviar campaña
+        </lib-button>
+      </div>
+
+      @if (previewStatus() === 'error') {
+        <p class="lib-field-error">No se ha podido generar la vista previa.</p>
+      }
+
+      @if (previewHtml(); as html) {
+        <div class="nl-admin__preview">
+          <p class="nl-admin__preview-label">Vista previa del email</p>
+          <iframe class="nl-admin__preview-frame" [srcdoc]="html" title="Vista previa del email" sandbox=""></iframe>
+        </div>
+      }
+    </form>
+  </lib-card>
+
+  <lib-card title="Campañas enviadas">
+    <lib-table
+      [data]="campaigns()?.items ?? []"
+      [columns]="campaignColumns"
+      emptyMessage="Aún no se han enviado campañas"
+    />
+
+    @if (campaigns(); as page) {
+      <div class="nl-admin__pagination">
+        <lib-button variant="ghost" size="sm" [disabled]="page.page === 0" (clicked)="prevCampaignsPage()">← Anterior</lib-button>
+        <span class="nl-admin__page-info">Página {{ page.page + 1 }} de {{ page.totalPages || 1 }}</span>
+        <lib-button variant="ghost" size="sm" [disabled]="!page.hasNext" (clicked)="nextCampaignsPage()">Siguiente →</lib-button>
+      </div>
+    }
+  </lib-card>
+
+</div>

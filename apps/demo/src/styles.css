@@ -1,0 +1,16 @@
+/* Importa el design system compartido */
+@import '../../../libs/shared/theme/index.css';
+
+/* Tema personalizado de la app "shop" — sobreescribe variables */
+:root {
+  --p1: #4A3221; /* Nogal oscuro */
+  --p2: #C8A97E; /* Roble dorado */
+  --p3: #E2D5C4; /* Bordes */
+  --p4: #F5EFE6; /* Abedul */
+}
+/* Estilos propios de la app */
+input,
+select,
+textarea {
+  font-family: inherit;
+}

@@ -1,0 +1,121 @@
+<form
+  class="lib-form"
+  [class.lib-form--cols-2]="cols() === 2"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+  novalidate
+>
+  @for (field of fields(); track field.key) {
+    <div
+      class="lib-form__field"
+      [class.lib-form__field--span-2]="field.span === 2"
+      [class.lib-form__field--checkbox]="field.type === 'checkbox'"
+    >
+      @if (field.type !== 'checkbox') {
+        <label class="lib-label" [for]="field.key">
+          {{ field.label }}
+          @if (field.required) { <span class="lib-required">*</span> }
+        </label>
+      }
+
+      @if (isNativeInput(field.type)) {
+        <input
+          class="lib-input"
+          [class.lib-input--error]="hasError(field.key)"
+          [id]="field.key"
+          [formControlName]="field.key"
+          [type]="field.type"
+          [placeholder]="field.placeholder || ''"
+          [attr.min]="field.min ?? null"
+          [attr.max]="field.max ?? null"
+          [attr.minlength]="field.minLength ?? null"
+          [attr.maxlength]="field.maxLength ?? null"
+        />
+      }
+
+      @if (field.type === 'textarea') {
+        <textarea
+          class="lib-input lib-textarea"
+          [class.lib-input--error]="hasError(field.key)"
+          [id]="field.key"
+          [formControlName]="field.key"
+          [placeholder]="field.placeholder || ''"
+          [rows]="field.rows || 4"
+        ></textarea>
+      }
+
+      @if (field.type === 'select') {
+        <select
+          class="lib-input lib-select"
+          [class.lib-input--error]="hasError(field.key)"
+          [id]="field.key"
+          [formControlName]="field.key"
+        >
+          @if (field.placeholder) {
+            <option value="" disabled>{{ field.placeholder }}</option>
+          }
+          @for (opt of field.options || []; track opt.value) {
+            <option [value]="opt.value" [attr.disabled]="opt.disabled || null">
+              {{ opt.label }}
+            </option>
+          }
+        </select>
+      }
+
+      @if (field.type === 'radio') {
+        <div class="lib-form__radio-group">
+          @for (opt of field.options || []; track opt.value) {
+            <label class="lib-form__radio-label">
+              <input
+                class="lib-radio"
+                type="radio"
+                [formControlName]="field.key"
+                [value]="opt.value"
+                [attr.disabled]="opt.disabled || null"
+              />
+              {{ opt.label }}
+            </label>
+          }
+        </div>
+      }
+
+      @if (field.type === 'checkbox') {
+        <label class="lib-form__checkbox-label" [for]="field.key">
+          <input
+            class="lib-checkbox"
+            type="checkbox"
+            [id]="field.key"
+            [formControlName]="field.key"
+          />
+          {{ field.label }}
+          @if (field.required) { <span class="lib-required">*</span> }
+        </label>
+      }
+
+      @if (field.hint && !hasError(field.key)) {
+        <p class="lib-hint">{{ field.hint }}</p>
+      }
+
+      @if (hasError(field.key)) {
+        <p class="lib-field-error">{{ getError(field) }}</p>
+      }
+    </div>
+  }
+
+  <div class="lib-form__actions" [class.lib-form__field--span-2]="cols() === 2">
+    @if (cancelLabel()) {
+      <button type="button" class="lib-form__btn lib-form__btn--secondary" (click)="cancelled.emit()">
+        {{ cancelLabel() }}
+      </button>
+    }
+    <button
+      type="submit"
+      class="lib-form__btn lib-form__btn--primary"
+      [class.lib-form__btn--loading]="loading()"
+      [disabled]="loading()"
+    >
+      @if (loading()) { <span class="lib-form__spinner"></span> }
+      {{ submitLabel() }}
+    </button>
+  </div>
+</form>

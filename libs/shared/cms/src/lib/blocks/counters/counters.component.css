@@ -1,0 +1,17 @@
+.cms-counters__title { font-size: var(--font-size-2xl, 1.5rem); font-weight: var(--font-weight-bold, 700); color: var(--color-text, #1a1a1a); margin: 0 0 var(--space-8, 2rem); text-align: center; }
+
+.cms-counters__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4, 1rem); }
+@media (min-width: 640px) {
+  .cms-counters__grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .cms-counters__grid--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+.cms-counters__item { text-align: center; padding: var(--space-6, 1.5rem) var(--space-4, 1rem); background: var(--color-background, #fff); border-radius: var(--radius-xl, 1rem); }
+
+.cms-counters__value { display: flex; align-items: baseline; justify-content: center; gap: var(--space-1, .25rem); margin-bottom: var(--space-2, .5rem); }
+
+.cms-counters__number { font-size: var(--font-size-4xl, 2.5rem); font-weight: var(--font-weight-bold, 700); color: var(--color-primary, #2563eb); line-height: 1; }
+
+.cms-counters__affix { font-size: var(--font-size-xl, 1.25rem); font-weight: var(--font-weight-bold, 700); color: var(--color-primary, #2563eb); }
+
+.cms-counters__label { font-size: var(--font-size-sm, .875rem); color: var(--color-text-muted, #909090); font-weight: var(--font-weight-medium, 500); }

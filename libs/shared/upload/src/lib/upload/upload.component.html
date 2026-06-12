@@ -1,0 +1,110 @@
+<!-- Zona de drop -->
+<div
+  class="lib-upload"
+  [class.lib-upload--dragging]="isDragging()"
+  [class.lib-upload--has-files]="files().length > 0"
+  [class.lib-upload--disabled]="disabled()"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+  (click)="fileInput.click()"
+  role="button"
+  [attr.aria-label]="label()"
+  tabindex="0"
+  (keyup.enter)="fileInput.click()"
+>
+  <input
+    #fileInput
+    type="file"
+    class="lib-upload__input"
+    [accept]="accept()"
+    [multiple]="multiple()"
+    (change)="onFileInputChange($event)"
+  />
+
+  @if (files().length === 0) {
+    <div class="lib-upload__placeholder">
+      <span class="lib-upload__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </span>
+      <p class="lib-upload__label">{{ label() }}</p>
+      <p class="lib-upload__sublabel">
+        {{ sublabel() || ('Formatos: ' + accept() + ' · Máx. ' + maxSizeMb() + 'MB') }}
+      </p>
+      @if (multiple() && maxFiles() > 1) {
+        <p class="lib-upload__sublabel">Hasta {{ maxFiles() }} archivos</p>
+      }
+    </div>
+  }
+
+  @if (files().length > 0 && showPreview()) {
+    <div class="lib-upload__previews" (click)="$event.stopPropagation()">
+      @for (f of files(); track f.name) {
+        <div class="lib-upload__preview-item">
+          @if (f.preview) {
+            <img [src]="f.preview" [alt]="f.name" class="lib-upload__preview-img" />
+          } @else {
+            <div class="lib-upload__preview-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </div>
+          }
+          <div class="lib-upload__preview-info">
+            <span class="lib-upload__preview-name">{{ f.name }}</span>
+            <span class="lib-upload__preview-size">{{ formatSize(f.size) }}</span>
+          </div>
+          <button
+            type="button"
+            class="lib-upload__preview-remove"
+            [attr.aria-label]="'Eliminar ' + f.name"
+            (click)="removeFile(f); $event.stopPropagation()"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      }
+
+      @if (canAddMore()) {
+        <button type="button" class="lib-upload__add-more" (click)="fileInput.click(); $event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Añadir más
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Barra de progreso — clases globales del theme -->
+@if (progress() !== null) {
+  <div class="lib-upload__progress-wrapper">
+    <div class="lib-progress">
+      <div class="lib-progress-bar" [style.width.%]="progress()"></div>
+    </div>
+    <p class="lib-upload__progress-text">{{ progress() }}%</p>
+  </div>
+}
+
+<!-- Estado de carga — spinner del theme -->
+@if (uploading() && progress() === null) {
+  <div class="lib-upload__uploading">
+    <span class="lib-spinner lib-spinner--sm" style="color: var(--color-accent)"></span>
+    Subiendo...
+  </div>
+}
+
+<!-- Errores — clase global del theme -->
+@for (err of errors(); track err.file) {
+  <p class="lib-field-error" style="margin-top: var(--space-2)">{{ err.message }}</p>
+}

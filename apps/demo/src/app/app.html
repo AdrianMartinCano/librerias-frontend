@@ -1,0 +1,27 @@
+<lib-navbar
+  [items]="navItems"
+  [languages]="languages"
+  [showThemeToggle]="true"
+  [showCart]="true"
+  [cartCount]="cart.count()"
+  logoText="LibUI"
+  logoPath="/demo"
+  (languageChange)="onLanguageChange($event)"
+  (cartClick)="onCartClick()"
+/>
+
+<main class="app-main">
+  <router-outlet></router-outlet>
+</main>
+
+<lib-footer
+  [sections]="footerSections"
+  [socialLinks]="socialLinks"
+  logoText="LibUI"
+  logoPath="/demo"
+  description="Librería de componentes Angular reutilizables. Mobile-first, temable con CSS variables."
+  copyright="© 2025 LibUI — Todos los derechos reservados"
+/>
+
+<!-- Toast container: una vez aquí, disponible en toda la app -->
+<lib-toast-container />

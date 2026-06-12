@@ -1,0 +1,77 @@
+<footer class="lib-footer">
+  <div class="lib-footer__top">
+    <div class="lib-footer__container">
+
+      @if (logo() || logoText() || description()) {
+        <div class="lib-footer__brand">
+          @if (logo()) {
+            <a [routerLink]="logoPath()">
+              <img [src]="logo()" [alt]="logoText() || 'Logo'" class="lib-footer__logo" />
+            </a>
+          }
+          @if (logoText()) {
+            <a [routerLink]="logoPath()" class="lib-footer__logo-text">{{ logoText() }}</a>
+          }
+          @if (description()) {
+            <p class="lib-footer__desc">{{ description() }}</p>
+          }
+
+          @if (safeSocialLinks().length > 0) {
+            <div class="lib-footer__social">
+              @for (link of safeSocialLinks(); track link.platform) {
+                <a
+                  class="lib-footer__social-link"
+                  [href]="link.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  [attr.aria-label]="platformLabel(link)"
+                  [title]="platformLabel(link)"
+                  [innerHTML]="link.safeIcon"
+                ></a>
+              }
+            </div>
+          }
+
+          <ng-content select="[slot=brand]" />
+        </div>
+      }
+
+      @for (section of sections(); track $index) {
+        <div class="lib-footer__section">
+          @if (section.title) {
+            <h4 class="lib-footer__section-title">{{ section.title }}</h4>
+          }
+          @if (section.links?.length) {
+            <ul class="lib-footer__links">
+              @for (link of section.links; track link.label) {
+                <li>
+                  @if (link.external) {
+                    <a class="lib-footer__link" [href]="link.path" target="_blank" rel="noopener">
+                      {{ link.label }}
+                    </a>
+                  } @else {
+                    <a class="lib-footer__link" [routerLink]="link.path">{{ link.label }}</a>
+                  }
+                </li>
+              }
+            </ul>
+          }
+          @if (section.text) {
+            <p class="lib-footer__text">{{ section.text }}</p>
+          }
+        </div>
+      }
+
+      <ng-content />
+    </div>
+  </div>
+
+  <div class="lib-footer__bottom">
+    <div class="lib-footer__container lib-footer__bottom-inner">
+      <span class="lib-footer__copyright">
+        {{ copyright() || ('© ' + currentYear + ' ' + logoText()) }}
+      </span>
+      <ng-content select="[slot=bottom]" />
+    </div>
+  </div>
+</footer>

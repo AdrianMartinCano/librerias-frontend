@@ -1,0 +1,102 @@
+<div class="lib-product-grid">
+
+  <!-- Filtros y búsqueda -->
+  @if (showSearch() || showFilters() || showSort()) {
+    <div class="lib-product-grid__toolbar">
+
+      @if (showSearch()) {
+        <div class="lib-product-grid__search">
+          <svg class="lib-product-grid__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            class="lib-input lib-product-grid__search-input"
+            type="search"
+            [placeholder]="searchPlaceholder()"
+            [value]="searchQuery()"
+            (input)="onSearch($event)"
+          />
+        </div>
+      }
+
+      <div class="lib-product-grid__toolbar-right">
+        @if (showFilters() && categories().length > 1) {
+          <select
+            class="lib-input lib-select lib-product-grid__filter"
+            [value]="selectedCategory()"
+            (change)="onCategoryChange($event)"
+          >
+            <option value="">Todas las categorías</option>
+            @for (cat of categories(); track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        }
+
+        @if (showSort()) {
+          <select
+            class="lib-input lib-select lib-product-grid__filter"
+            [value]="sortBy()"
+            (change)="onSortChange($event)"
+          >
+            <option value="name">Nombre A-Z</option>
+            <option value="price-asc">Precio: menor a mayor</option>
+            <option value="price-desc">Precio: mayor a menor</option>
+            <option value="rating">Mejor valorados</option>
+          </select>
+        }
+      </div>
+
+    </div>
+  }
+
+  <!-- Contador de resultados -->
+  @if (showSearch() || showFilters()) {
+    <p class="lib-product-grid__count">
+      {{ filteredProducts().length }}
+      {{ filteredProducts().length === 1 ? 'producto' : 'productos' }}
+      @if (searchQuery() || selectedCategory()) { encontrados }
+    </p>
+  }
+
+  <!-- Grid de productos -->
+  @if (loading()) {
+    <div class="lib-product-grid__loading">
+      @for (_ of skeletons; track $index) {
+        <div class="lib-product-grid__skeleton"></div>
+      }
+    </div>
+  } @else if (filteredProducts().length === 0) {
+    <div class="lib-product-grid__empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="lib-product-grid__empty-icon">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+      </svg>
+      <p>{{ emptyMessage() }}</p>
+      @if (searchQuery() || selectedCategory()) {
+        <button type="button" class="lib-product-grid__clear" (click)="clearFilters()">
+          Limpiar filtros
+        </button>
+      }
+    </div>
+  } @else {
+    <div
+      class="lib-product-grid__items"
+      [class.lib-product-grid__items--2]="cols() === 2"
+      [class.lib-product-grid__items--3]="cols() === 3"
+      [class.lib-product-grid__items--4]="cols() === 4"
+    >
+      @for (product of filteredProducts(); track product.id) {
+        <lib-product-card
+          [product]="product"
+          [showRating]="showRating()"
+          [showAddToCart]="showAddToCart()"
+          [addToCartLabel]="addToCartLabel()"
+          [routerLink]="productRoute(product)"
+          (cardClick)="productClick.emit($event)"
+          (addToCart)="addToCart.emit($event)"
+        />
+      }
+    </div>
+  }
+
+</div>

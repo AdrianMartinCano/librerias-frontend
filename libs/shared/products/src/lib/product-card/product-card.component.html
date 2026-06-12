@@ -1,0 +1,84 @@
+<article
+  class="lib-product-card"
+  [class.lib-product-card--out-of-stock]="!product().inStock"
+  [class.lib-product-card--horizontal]="orientation() === 'horizontal'"
+  [class.lib-product-card--linkable]="!!routerLink()"
+  (click)="onCardClick()"
+  (keyup.enter)="onCardClick()"
+  [attr.tabindex]="routerLink() ? null : 0"
+  [attr.role]="routerLink() ? null : 'button'"
+  [attr.aria-label]="routerLink() ? null : product().name"
+>
+  <!-- Imagen -->
+  <div class="lib-product-card__media">
+    @if (routerLink()) {
+      <a [routerLink]="routerLink()" class="lib-product-card__media-link" [attr.aria-label]="product().name" tabindex="-1">
+        <img [src]="product().imageUrl" [alt]="product().name" class="lib-product-card__img" loading="lazy" />
+      </a>
+    } @else {
+      <img [src]="product().imageUrl" [alt]="product().name" class="lib-product-card__img" loading="lazy" />
+    }
+
+    @if (!product().inStock) {
+      <div class="lib-product-card__overlay">Agotado</div>
+    }
+    @if (product().badge && product().inStock) {
+      <span class="lib-product-card__badge">{{ product().badge }}</span>
+    }
+    @if (!product().inStock) {
+      <span class="lib-product-card__badge lib-product-card__badge--muted">Agotado</span>
+    }
+  </div>
+
+  <!-- Cuerpo -->
+  <div class="lib-product-card__body">
+    <p class="lib-product-card__category">{{ categoryName() }}</p>
+
+    <!-- Título: enlace si hay routerLink, texto si no -->
+    @if (routerLink()) {
+      <h3 class="lib-product-card__name">
+        <a [routerLink]="routerLink()" class="lib-product-card__name-link">{{ product().name }}</a>
+      </h3>
+    } @else {
+      <h3 class="lib-product-card__name">{{ product().name }}</h3>
+    }
+
+    @if (showRating() && product().rating) {
+      <div class="lib-product-card__rating">
+        <div class="lib-product-card__stars" [attr.aria-label]="product().rating + ' de 5 estrellas'">
+          @for (star of stars(); track $index) {
+            <span
+              class="lib-product-card__star"
+              [class.lib-product-card__star--filled]="star.filled"
+              [class.lib-product-card__star--half]="star.half"
+            >★</span>
+          }
+        </div>
+        <span class="lib-product-card__review-count">({{ product().reviewCount }})</span>
+      </div>
+    }
+
+    <div class="lib-product-card__footer">
+      <div class="lib-product-card__price-group">
+        @if (product().originalPrice && product().originalPrice! > product().price) {
+          <span class="lib-product-card__original-price">{{ formatPrice(product().originalPrice!) }}</span>
+        }
+        <span class="lib-product-card__price">{{ formatPrice(product().price) }}</span>
+        @if (discount()) {
+          <span class="lib-product-card__discount">-{{ discount() }}%</span>
+        }
+      </div>
+
+      @if (showAddToCart() && product().inStock) {
+        <button
+          type="button"
+          class="lib-product-card__btn"
+          [attr.aria-label]="addToCartLabel() + ' ' + product().name"
+          (click)="onAddToCart($event)"
+        >
+          {{ addToCartLabel() }}
+        </button>
+      }
+    </div>
+  </div>
+</article>

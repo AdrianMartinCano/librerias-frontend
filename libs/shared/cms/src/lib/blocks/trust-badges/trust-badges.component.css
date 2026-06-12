@@ -1,0 +1,13 @@
+.cms-trust-badges { padding-top: var(--space-6, 1.5rem); padding-bottom: var(--space-6, 1.5rem); }
+
+.cms-trust-badges__title { font-size: var(--font-size-lg, 1.125rem); font-weight: var(--font-weight-semibold, 600); color: var(--color-text, #1a1a1a); margin: 0 0 var(--space-4, 1rem); }
+.cms-trust-badges--center .cms-trust-badges__title { text-align: center; }
+
+.cms-trust-badges__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-3, .75rem) var(--space-6, 1.5rem); }
+.cms-trust-badges--center .cms-trust-badges__list { justify-content: center; }
+
+.cms-trust-badges__item { display: flex; align-items: center; gap: var(--space-2, .5rem); }
+
+.cms-trust-badges__icon { font-size: 1.25rem; flex-shrink: 0; }
+
+.cms-trust-badges__text { font-size: var(--font-size-sm, .875rem); font-weight: var(--font-weight-medium, 500); color: var(--color-text-muted, #4b5563); white-space: nowrap; }

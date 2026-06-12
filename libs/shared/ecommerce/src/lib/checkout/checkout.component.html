@@ -1,0 +1,155 @@
+<div class="lib-checkout">
+
+  <!-- Indicador de pasos -->
+  @if (step() !== 'success') {
+    <div class="lib-checkout__steps">
+      @for (s of stepLabels; track s.id) {
+        <div
+          class="lib-checkout__step"
+          [class.lib-checkout__step--active]="step() === s.id"
+          [class.lib-checkout__step--done]="isStepDone(s.id)"
+        >
+          <span class="lib-checkout__step-dot">
+            @if (isStepDone(s.id)) { ✓ } @else { {{ s.num }} }
+          </span>
+          <span class="lib-checkout__step-label">{{ s.label }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Paso 1: Carrito -->
+  @if (step() === 'cart') {
+    <div class="lib-checkout__section">
+      <h2 class="lib-checkout__title">Resumen del carrito</h2>
+      <lib-cart-summary
+        [items]="cart.items()"
+        [total]="cart.total()"
+        [showClearBtn]="true"
+        checkoutLabel="Continuar con el envío →"
+        (checkout)="checkout.nextStep()"
+        (clearCart)="cart.clear()"
+        (itemChange)="cart.updateQuantity($event.item.product.id, $event.quantity)"
+        (itemRemove)="cart.remove($event.product.id)"
+      />
+    </div>
+  }
+
+  <!-- Paso 2: Envío -->
+  @if (step() === 'shipping') {
+    <div class="lib-checkout__section">
+      <h2 class="lib-checkout__title">Datos de envío</h2>
+      <lib-form
+        [fields]="shippingFields"
+        [cols]="2"
+        submitLabel="Continuar con el pago →"
+        cancelLabel="← Volver"
+        (submitted)="onShipping($event)"
+        (cancelled)="checkout.prevStep()"
+      />
+    </div>
+  }
+
+  <!-- Paso 3: Pago -->
+  @if (step() === 'payment') {
+    <div class="lib-checkout__section">
+      <h2 class="lib-checkout__title">Método de pago</h2>
+      <div class="lib-checkout__payment-options">
+        @for (opt of paymentOptions; track opt.value) {
+          <label
+            class="lib-checkout__payment-opt"
+            [class.lib-checkout__payment-opt--selected]="selectedPayment() === opt.value"
+          >
+            <input
+              type="radio"
+              class="lib-radio"
+              name="payment"
+              [value]="opt.value"
+              (change)="selectedPayment.set(opt.value)"
+            />
+            <span class="lib-checkout__payment-icon">{{ opt.icon }}</span>
+            <div>
+              <p class="lib-checkout__payment-label">{{ opt.label }}</p>
+              <p class="lib-checkout__payment-desc">{{ opt.description }}</p>
+            </div>
+          </label>
+        }
+      </div>
+      <div class="lib-checkout__payment-actions">
+        <button type="button" class="lib-checkout__btn-secondary" (click)="checkout.prevStep()">← Volver</button>
+        <button type="button" class="lib-checkout__btn-primary" [disabled]="!selectedPayment()" (click)="onPayment()">
+          Revisar pedido →
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Paso 4: Confirmación -->
+  @if (step() === 'confirm') {
+    <div class="lib-checkout__section">
+      <h2 class="lib-checkout__title">Revisa tu pedido</h2>
+      <div class="lib-checkout__confirm-grid">
+
+        <!-- Productos -->
+        <div class="lib-checkout__confirm-block">
+          <h3 class="lib-checkout__confirm-heading">Productos</h3>
+          @for (item of cart.items(); track item.product.id) {
+            <div class="lib-checkout__confirm-item">
+              <span>{{ item.product.name }} × {{ item.quantity }}</span>
+              <span>{{ formatPrice(item.product.price * item.quantity) }}</span>
+            </div>
+          }
+          <div class="lib-checkout__confirm-total">
+            <strong>Total</strong>
+            <strong>{{ formatPrice(cart.total()) }}</strong>
+          </div>
+        </div>
+
+        <!-- Envío -->
+        <div class="lib-checkout__confirm-block">
+          <h3 class="lib-checkout__confirm-heading">Dirección de envío</h3>
+          @if (checkout.shipping(); as s) {
+            <p>{{ s.name }}</p>
+            <p>{{ s.address }}</p>
+            <p>{{ s.postalCode }} {{ s.city }}</p>
+            <p>{{ s.phone }} · {{ s.email }}</p>
+          }
+        </div>
+
+        <!-- Pago -->
+        <div class="lib-checkout__confirm-block">
+          <h3 class="lib-checkout__confirm-heading">Método de pago</h3>
+          <p>{{ paymentLabel(checkout.payment()!) }}</p>
+        </div>
+
+      </div>
+
+      <div class="lib-checkout__payment-actions">
+        <button type="button" class="lib-checkout__btn-secondary" (click)="checkout.prevStep()">← Modificar</button>
+        <button
+          type="button"
+          class="lib-checkout__btn-primary"
+          [class.lib-checkout__btn-loading]="loading()"
+          [disabled]="loading()"
+          (click)="onConfirm()"
+        >
+          @if (loading()) { <span class="lib-spinner lib-spinner--sm lib-spinner--inverse"></span> }
+          Confirmar pedido
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Paso 5: Éxito -->
+  @if (step() === 'success') {
+    <div class="lib-checkout__success">
+      <div class="lib-checkout__success-icon">✓</div>
+      <h2>¡Pedido confirmado!</h2>
+      <p>{{ successMessage() }}</p>
+      <button type="button" class="lib-checkout__btn-primary" (click)="onNewOrder()">
+        Seguir comprando
+      </button>
+    </div>
+  }
+
+</div>

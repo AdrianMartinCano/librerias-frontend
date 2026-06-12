@@ -1,0 +1,14 @@
+{
+  "name": "@adrianmartincano/ng-ecommerce",
+  "version": "0.3.8",
+  "peerDependencies": {
+    "@angular/common": ">=21.0.0",
+    "@angular/core": ">=21.0.0",
+    "@adrianmartincano/ng-theme": ">=0.0.1",
+    "@adrianmartincano/ng-products": ">=0.3.7",
+    "@adrianmartincano/ng-forms": ">=0.3.7"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

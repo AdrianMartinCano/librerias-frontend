@@ -1,0 +1,22 @@
+@if (routerLink()) {
+  <a class="lib-btn" [class]="classes()" [routerLink]="routerLink()" [attr.tabindex]="disabled() ? -1 : 0">
+    @if (loading()) { <span class="lib-btn__spinner"></span> }
+    <ng-content />
+  </a>
+} @else if (href()) {
+  <a class="lib-btn" [class]="classes()" [href]="href()" target="_blank" rel="noopener">
+    @if (loading()) { <span class="lib-btn__spinner"></span> }
+    <ng-content />
+  </a>
+} @else {
+  <button
+    class="lib-btn"
+    [class]="classes()"
+    [type]="type()"
+    [disabled]="disabled() || loading()"
+    (click)="clicked.emit($event)"
+  >
+    @if (loading()) { <span class="lib-btn__spinner"></span> }
+    <ng-content />
+  </button>
+}

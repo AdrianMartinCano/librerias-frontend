@@ -1,0 +1,49 @@
+{
+  "name": "cms-demo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/cms-demo/src",
+  "tags": ["scope:cms-demo"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/cms-demo",
+        "browser": "apps/cms-demo/src/main.ts",
+        "polyfills": ["zone.js"],
+        "tsConfig": "apps/cms-demo/tsconfig.app.json",
+        "assets": [{ "glob": "**/*", "input": "apps/cms-demo/public" }],
+        "styles": ["apps/cms-demo/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": { "buildTarget": "cms-demo:build:production" },
+        "development": { "buildTarget": "cms-demo:build:development" }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4300,
+        "proxyConfig": "apps/cms-demo/proxy.conf.json"
+      }
+    }
+  }
+}

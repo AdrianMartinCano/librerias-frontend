@@ -1,0 +1,138 @@
+/* Los inputs, selects y colores usan clases globales del theme:
+   .lib-input, .lib-select, CSS variables.
+   Solo aquí la estructura específica del grid y la toolbar. */
+
+.lib-product-grid { width: 100%; }
+
+/* ── Toolbar (búsqueda + filtros) ── */
+.lib-product-grid__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3, 0.75rem);
+  margin-bottom: var(--space-4, 1rem);
+  align-items: center;
+}
+
+.lib-product-grid__search {
+  position: relative;
+  flex: 1 1 220px;
+}
+
+.lib-product-grid__search-icon {
+  position: absolute;
+  left: var(--space-3, 0.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted, #909090);
+  pointer-events: none;
+}
+
+.lib-product-grid__search-input {
+  padding-left: calc(var(--space-3, 0.75rem) * 2 + 16px);
+}
+
+.lib-product-grid__toolbar-right {
+  display: flex;
+  gap: var(--space-3, 0.75rem);
+  flex-wrap: wrap;
+}
+
+.lib-product-grid__filter {
+  flex: 1 1 160px;
+  min-width: 140px;
+}
+
+/* ── Contador ── */
+.lib-product-grid__count {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-muted, #909090);
+  margin-bottom: var(--space-4, 1rem);
+}
+
+/* ── Grid de items ── */
+.lib-product-grid__items {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-4, 1rem);
+}
+
+@media (min-width: 480px) {
+  .lib-product-grid__items { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 768px) {
+  .lib-product-grid__items--3,
+  .lib-product-grid__items--4 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .lib-product-grid__items--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ── Skeleton loading ── */
+.lib-product-grid__loading {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-4, 1rem);
+}
+
+@media (min-width: 480px) { .lib-product-grid__loading { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px) { .lib-product-grid__loading { grid-template-columns: repeat(3, 1fr); } }
+
+.lib-product-grid__skeleton {
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface, #f8f9fa) 25%,
+    var(--color-surface-alt, #f1f3f5) 50%,
+    var(--color-surface, #f8f9fa) 75%
+  );
+  background-size: 200% 100%;
+  animation: lib-skeleton 1.4s ease infinite;
+}
+
+@keyframes lib-skeleton {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Estado vacío ── */
+.lib-product-grid__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4, 1rem);
+  padding: var(--space-16, 4rem) var(--space-4, 1rem);
+  text-align: center;
+  color: var(--color-text-muted, #909090);
+}
+
+.lib-product-grid__empty-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.4;
+}
+
+.lib-product-grid__empty p {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-secondary, #595959);
+}
+
+.lib-product-grid__clear {
+  background: none;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: var(--radius-md, 0.5rem);
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-accent, #ff4d4d);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--transition-fast, 120ms ease);
+}
+
+.lib-product-grid__clear:hover {
+  background: color-mix(in srgb, var(--color-accent, #ff4d4d) 8%, transparent);
+}

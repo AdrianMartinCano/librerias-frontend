@@ -1,0 +1,124 @@
+:host { display: inline-block; }
+
+.lib-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 0.5rem);
+  border: 2px solid transparent;   /* siempre reserva espacio para el borde */
+  border-radius: var(--radius-md, 0.5rem);
+  font-family: inherit;
+  font-weight: var(--font-weight-semibold, 600);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--transition-fast, 120ms ease),
+    color var(--transition-fast, 120ms ease),
+    border-color var(--transition-fast, 120ms ease),
+    opacity var(--transition-fast, 120ms ease),
+    transform var(--transition-fast, 120ms ease);
+  user-select: none;
+}
+
+.lib-btn:active:not(:disabled)    { transform: scale(0.97); }
+.lib-btn:disabled, .lib-btn--loading { opacity: 0.45; cursor: not-allowed; }
+
+/* Tamaños */
+.lib-btn--sm   { padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);  font-size: var(--font-size-sm, 0.875rem); }
+.lib-btn--md   { padding: var(--space-3, 0.75rem) var(--space-5, 1.25rem); font-size: var(--font-size-base, 1rem); }
+.lib-btn--lg   { padding: var(--space-4, 1rem) var(--space-8, 2rem);       font-size: var(--font-size-lg, 1.125rem); }
+.lib-btn--full { width: 100%; }
+
+/* ── Primary — fondo de marca oscuro ── */
+.lib-btn--primary {
+  background: var(--color-primary, #1e1e1e);
+  color: var(--color-text-inverse, #fff);
+  border-color: var(--color-primary, #1e1e1e);
+}
+.lib-btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-light, #333);
+  border-color: var(--color-primary-light, #333);
+}
+
+/* ── Accent — acción principal ── */
+.lib-btn--accent {
+  background: var(--color-accent, #ff4d4d);
+  color: #fff;
+  border-color: var(--color-accent, #ff4d4d);
+}
+.lib-btn--accent:hover:not(:disabled) {
+  background: var(--color-accent-hover, #e63e3e);
+  border-color: var(--color-accent-hover, #e63e3e);
+}
+
+/* ── Secondary — neutro con borde visible ── */
+.lib-btn--secondary {
+  background: var(--color-surface, #f8f9fa);
+  color: var(--color-text, #1a1a1a);
+  border-color: var(--color-border, #e0e0e0);
+}
+.lib-btn--secondary:hover:not(:disabled) {
+  background: var(--color-surface-alt, #f1f3f5);
+  border-color: var(--color-primary-light, #555);
+}
+
+/* ── Outline — borde accent, sin relleno ── */
+.lib-btn--outline {
+  background: transparent;
+  border-color: var(--color-accent, #ff4d4d);
+  color: var(--color-accent, #ff4d4d);
+}
+.lib-btn--outline:hover:not(:disabled) {
+  background: var(--color-accent, #ff4d4d);
+  color: #fff;
+}
+
+/* ── Ghost — transparente con texto accent ── */
+.lib-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-accent, #ff4d4d);
+}
+.lib-btn--ghost:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent, #ff4d4d) 10%, transparent);
+}
+
+/* ── Danger — destructivo ── */
+.lib-btn--danger {
+  background: var(--color-danger, #dc3545);
+  color: #fff;
+  border-color: var(--color-danger, #dc3545);
+}
+.lib-btn--danger:hover:not(:disabled) {
+  background: #b02a37;
+  border-color: #b02a37;
+}
+
+/* ── Spinners — color adaptado a cada variante ── */
+.lib-btn__spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  animation: lib-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+/* Fondos oscuros (primary, accent, danger) → spinner blanco */
+.lib-btn--primary .lib-btn__spinner,
+.lib-btn--accent  .lib-btn__spinner,
+.lib-btn--danger  .lib-btn__spinner {
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+}
+
+/* Fondos claros o transparentes (secondary, outline, ghost) → spinner accent */
+.lib-btn--secondary .lib-btn__spinner,
+.lib-btn--outline   .lib-btn__spinner,
+.lib-btn--ghost     .lib-btn__spinner {
+  border: 2px solid color-mix(in srgb, var(--color-accent, #ff4d4d) 25%, transparent);
+  border-top-color: var(--color-accent, #ff4d4d);
+}
+
+@keyframes lib-spin { to { transform: rotate(360deg); } }

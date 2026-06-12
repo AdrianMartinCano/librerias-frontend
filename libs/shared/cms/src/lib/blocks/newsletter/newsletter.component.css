@@ -1,0 +1,20 @@
+.cms-newsletter--primary { background: var(--color-primary, #1e1e1e); color: var(--color-text-inverse, #fff); }
+.cms-newsletter--accent  { background: var(--color-accent, #ff4d4d);  color: var(--color-text-inverse, #fff); }
+.cms-newsletter--surface { background: var(--color-surface, #f8f9fa); color: var(--color-text, #1a1a1a); }
+
+.cms-newsletter__inner { max-width: 640px; margin-inline: auto; }
+
+.cms-newsletter--center .cms-newsletter__inner { text-align: center; }
+.cms-newsletter--center .nl-form__row { justify-content: center; }
+
+.cms-newsletter--primary .nl-form__title,
+.cms-newsletter--accent  .nl-form__title,
+.cms-newsletter--primary .nl-form__description,
+.cms-newsletter--accent  .nl-form__description {
+  color: inherit;
+}
+
+.cms-newsletter--primary .nl-form__description,
+.cms-newsletter--accent  .nl-form__description {
+  opacity: .85;
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@adrianmartincano/ng-ui",
+  "version": "0.3.8",
+  "peerDependencies": {
+    "@angular/common": ">=21.0.0",
+    "@angular/core": ">=21.0.0",
+    "@adrianmartincano/ng-theme": ">=0.0.1"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}

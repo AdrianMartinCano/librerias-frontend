@@ -1,0 +1,133 @@
+.lib-order-card {
+  background: var(--color-background, #fff);
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: var(--radius-lg, .75rem);
+  padding: var(--space-4, 1rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, .75rem);
+}
+
+.lib-order-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2, .5rem);
+}
+
+.lib-order-card__id {
+  font-size: var(--font-size-sm, .875rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text, #1a1a1a);
+  margin: 0;
+}
+
+.lib-order-card__date {
+  font-size: var(--font-size-xs, .75rem);
+  color: var(--color-text-muted, #909090);
+  margin: 0;
+}
+
+/* Badges de estado */
+.lib-order-card__status {
+  font-size: var(--font-size-xs, .75rem);
+  font-weight: 700;
+  padding: var(--space-1, .25rem) var(--space-2, .5rem);
+  border-radius: var(--radius-full, 9999px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lib-order-card__status--pending    { background: color-mix(in srgb, #ffc107 15%, transparent); color: #92650a; }
+.lib-order-card__status--processing { background: color-mix(in srgb, #17a2b8 15%, transparent); color: #0a6275; }
+.lib-order-card__status--shipped    { background: color-mix(in srgb, #6f42c1 15%, transparent); color: #4a2d85; }
+.lib-order-card__status--delivered  { background: color-mix(in srgb, #28a745 15%, transparent); color: #155724; }
+.lib-order-card__status--cancelled  { background: color-mix(in srgb, #dc3545 15%, transparent); color: #721c24; }
+
+/* Imágenes */
+.lib-order-card__items {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, .5rem);
+}
+
+.lib-order-card__img {
+  width: 44px; height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-md, .5rem);
+  border: 1px solid var(--color-border, #e0e0e0);
+  flex-shrink: 0;
+}
+
+.lib-order-card__more {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-md, .5rem);
+  border: 1px solid var(--color-border, #e0e0e0);
+  background: var(--color-surface, #f8f9fa);
+  font-size: var(--font-size-xs, .75rem);
+  font-weight: 700;
+  color: var(--color-text-secondary, #595959);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.lib-order-card__summary { margin-left: auto; text-align: right; }
+
+.lib-order-card__count {
+  font-size: var(--font-size-xs, .75rem);
+  color: var(--color-text-muted, #909090);
+  margin: 0;
+}
+
+.lib-order-card__total {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text, #1a1a1a);
+  margin: 0;
+}
+
+/* Seguimiento */
+.lib-order-card__tracking {
+  font-size: var(--font-size-xs, .75rem);
+  color: var(--color-text-secondary, #595959);
+  margin: 0;
+}
+
+.lib-order-card__tracking code {
+  background: var(--color-surface-alt, #f1f3f5);
+  padding: 2px var(--space-2, .5rem);
+  border-radius: var(--radius-sm, .25rem);
+  font-family: monospace;
+}
+
+/* Footer */
+.lib-order-card__footer {
+  display: flex;
+  gap: var(--space-2, .5rem);
+  padding-top: var(--space-3, .75rem);
+  border-top: 1px solid var(--color-border, #e0e0e0);
+}
+
+.lib-order-card__btn {
+  padding: var(--space-2, .5rem) var(--space-4, 1rem);
+  border-radius: var(--radius-md, .5rem);
+  font-size: var(--font-size-sm, .875rem);
+  font-weight: var(--font-weight-medium, 500);
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid var(--color-border, #e0e0e0);
+  background: var(--color-surface, #f8f9fa);
+  color: var(--color-text, #1a1a1a);
+  transition: background var(--transition-fast, 120ms ease);
+}
+
+.lib-order-card__btn:hover { background: var(--color-surface-alt, #f1f3f5); }
+
+.lib-order-card__btn--danger {
+  border-color: color-mix(in srgb, var(--color-danger, #dc3545) 40%, transparent);
+  color: var(--color-danger, #dc3545);
+  background: transparent;
+}
+
+.lib-order-card__btn--danger:hover {
+  background: color-mix(in srgb, var(--color-danger, #dc3545) 8%, transparent);
+}

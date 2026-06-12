@@ -1,0 +1,39 @@
+<div class="lib-order-card">
+  <div class="lib-order-card__header">
+    <div>
+      <p class="lib-order-card__id">Pedido #{{ order().id }}</p>
+      <p class="lib-order-card__date">{{ formatDate(order().createdAt) }}</p>
+    </div>
+    <span class="lib-order-card__status" [class]="'lib-order-card__status--' + order().status">
+      {{ statusLabel(order().status) }}
+    </span>
+  </div>
+
+  <div class="lib-order-card__items">
+    @for (item of order().items.slice(0, 3); track item.product.id) {
+      <img [src]="item.product.imageUrl" [alt]="item.product.name" class="lib-order-card__img" [title]="item.product.name + ' ×' + item.quantity" />
+    }
+    @if (order().items.length > 3) {
+      <span class="lib-order-card__more">+{{ order().items.length - 3 }}</span>
+    }
+    <div class="lib-order-card__summary">
+      <p class="lib-order-card__count">{{ order().items.length }} {{ order().items.length === 1 ? 'artículo' : 'artículos' }}</p>
+      <p class="lib-order-card__total">{{ formatPrice(order().total) }}</p>
+    </div>
+  </div>
+
+  @if (order().trackingCode) {
+    <p class="lib-order-card__tracking">Seguimiento: <code>{{ order().trackingCode }}</code></p>
+  }
+
+  <div class="lib-order-card__footer">
+    <button type="button" class="lib-order-card__btn" (click)="viewDetail.emit(order())">
+      Ver detalle
+    </button>
+    @if (order().status === 'pending') {
+      <button type="button" class="lib-order-card__btn lib-order-card__btn--danger" (click)="cancelOrder.emit(order())">
+        Cancelar
+      </button>
+    }
+  </div>
+</div>

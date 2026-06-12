@@ -1,0 +1,109 @@
+name: Publish Angular libraries to GitHub Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@adrianmartincano'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build and publish libraries
+        run: |
+          mkdir -p node_modules/@org
+          mkdir -p node_modules/@adrianmartincano
+
+          for lib in models auth ui forms upload products newsletter ecommerce cms cms-editor reservations cookies legal; do
+            echo "=== Building @adrianmartincano/$lib ==="
+
+            cp libs/shared/$lib/publish.json libs/shared/$lib/package.json
+
+            node -e "
+              const fs = require('fs');
+
+              // tsconfig sin path aliases — TypeScript resuelve @org/* via node_modules/@org/*
+              // donde crearemos symlinks al dist de cada libreria ya buildeada
+              const tsconfig = {
+                compilerOptions: {
+                  sourceMap: true,
+                  declaration: true,
+                  declarationMap: false,
+                  inlineSources: true,
+                  moduleResolution: 'node',
+                  emitDecoratorMetadata: true,
+                  experimentalDecorators: true,
+                  importHelpers: true,
+                  target: 'ES2022',
+                  module: 'ES2022',
+                  lib: ['ES2022', 'dom'],
+                  skipLibCheck: true,
+                  skipDefaultLibCheck: true,
+                  baseUrl: '.'
+                },
+                angularCompilerOptions: {
+                  enableI18nLegacyMessageIdFormat: false,
+                  strictInjectionParameters: true,
+                  strictInputAccessModifiers: true,
+                  strictTemplates: true
+                },
+                exclude: ['src/test-setup.ts', '**/*.spec.ts', '**/*.test.ts'],
+                include: ['src/**/*.ts']
+              };
+              fs.writeFileSync('libs/shared/$lib/tsconfig.lib.prod.json', JSON.stringify(tsconfig, null, 2));
+
+              const ngpkg = {
+                lib: { entryFile: 'src/index.ts' },
+                dest: '../../../dist/libs/shared/$lib'
+              };
+              fs.writeFileSync('libs/shared/$lib/ng-package.json', JSON.stringify(ngpkg, null, 2));
+            "
+
+            npx ng-packagr -p libs/shared/$lib/ng-package.json
+
+            # Reescribir imports cross-lib @org/<x> -> @adrianmartincano/ng-<x> en el paquete publicado
+            find dist/libs/shared/$lib -type f \( -name '*.mjs' -o -name '*.d.ts' \) \
+              -exec sed -i 's#@org/#@adrianmartincano/ng-#g' {} +
+
+            # Symlinks para que las libs siguientes resuelvan tanto @org/<lib> como @adrianmartincano/ng-<lib>
+            ln -sf $(pwd)/dist/libs/shared/$lib node_modules/@org/$lib
+            ln -sf $(pwd)/dist/libs/shared/$lib node_modules/@adrianmartincano/ng-$lib
+
+            rm libs/shared/$lib/package.json
+            rm libs/shared/$lib/ng-package.json
+            rm libs/shared/$lib/tsconfig.lib.prod.json
+
+            echo "Publishing @adrianmartincano/$lib..."
+            cd dist/libs/shared/$lib
+            npm publish
+            cd -
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish theme (CSS only)
+        run: |
+          cp libs/shared/theme/publish.json libs/shared/theme/package.json
+          cd libs/shared/theme
+          npm publish
+          cd -
+          rm libs/shared/theme/package.json
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

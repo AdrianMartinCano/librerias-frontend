@@ -1,0 +1,39 @@
+.cms-gallery__title { font-size: var(--font-size-2xl, 1.5rem); font-weight: var(--font-weight-bold, 700); color: var(--color-text, #1a1a1a); margin: 0 0 var(--space-6, 1.5rem); text-align: center; }
+
+.cms-gallery__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3, .75rem); }
+@media (min-width: 640px) {
+  .cms-gallery__grid--3 { grid-template-columns: repeat(3,1fr); }
+  .cms-gallery__grid--4 { grid-template-columns: repeat(4,1fr); }
+}
+
+.cms-gallery__item { margin: 0; cursor: pointer; border-radius: var(--radius-lg, .75rem); overflow: hidden; position: relative; }
+.cms-gallery__item:hover .cms-gallery__img { transform: scale(1.04); }
+
+.cms-gallery__img { width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform var(--transition-base, 200ms ease); display: block; }
+
+.cms-gallery__caption { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,.5); color: #fff; font-size: var(--font-size-xs, .75rem); padding: var(--space-2, .5rem); margin: 0; }
+
+.cms-gallery__lightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,.9); z-index: var(--z-modal, 300);
+  display: flex; align-items: center; justify-content: center; padding: var(--space-4, 1rem);
+  animation: lib-fade-in .15s ease both;
+}
+.cms-gallery__lightbox-img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: var(--radius-lg, .75rem); }
+.cms-gallery__lightbox-close {
+  position: absolute; top: var(--space-4, 1rem); right: var(--space-4, 1rem);
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,.2); color: #fff; font-size: 1.25rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.cms-gallery__lightbox-prev,
+.cms-gallery__lightbox-next {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 48px; height: 48px; border-radius: 50%; border: none;
+  background: rgba(255,255,255,.2); color: #fff; font-size: 2.5rem; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background var(--transition-base, 200ms ease);
+}
+.cms-gallery__lightbox-prev:hover,
+.cms-gallery__lightbox-next:hover { background: rgba(255,255,255,.4); }
+.cms-gallery__lightbox-prev { left: var(--space-4, 1rem); }
+.cms-gallery__lightbox-next { right: var(--space-4, 1rem); }

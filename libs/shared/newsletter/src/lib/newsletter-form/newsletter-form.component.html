@@ -1,0 +1,52 @@
+<form
+  class="nl-form nl-form--{{ layout() }}"
+  [formGroup]="form"
+  (ngSubmit)="onSubmit()"
+  novalidate
+>
+  @if (title()) {
+    <h3 class="nl-form__title">{{ title() }}</h3>
+  }
+  @if (description()) {
+    <p class="nl-form__description">{{ description() }}</p>
+  }
+
+  @if (status() !== 'success') {
+    <div class="nl-form__row">
+      <div class="nl-form__field">
+        <input
+          id="nl-email"
+          type="email"
+          class="lib-input"
+          [class.lib-input--error]="email.invalid && email.touched"
+          [placeholder]="placeholder()"
+          formControlName="email"
+          autocomplete="email"
+          aria-label="Email"
+        />
+        @if (email.invalid && email.touched) {
+          <p class="lib-field-error">
+            @if (email.errors?.['required']) {
+              Introduce tu email.
+            } @else if (email.errors?.['email']) {
+              El email no es válido.
+            }
+          </p>
+        }
+      </div>
+
+      <button type="submit" class="nl-form__btn" [disabled]="status() === 'loading'">
+        @if (status() === 'loading') {
+          <span class="lib-spinner lib-spinner--sm lib-spinner--inverse" aria-hidden="true"></span>
+        }
+        {{ submitLabel() }}
+      </button>
+    </div>
+
+    @if (status() === 'error') {
+      <p class="lib-field-error">{{ serverMessage() ?? errorMessage() }}</p>
+    }
+  } @else {
+    <p class="nl-form__success">{{ successMessage() }}</p>
+  }
+</form>
