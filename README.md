@@ -1,5 +1,7 @@
 # Shared UI Libraries — Frontend
 
+![Frontend Logo](./logo.svg)
+
 Monorepo Nx de **librerías Angular reutilizables** para acelerar el desarrollo de aplicaciones web profesionales.
 
 Incluye componentes UI, modelos compartidos, servicios comunes y utilidades listas para producción.

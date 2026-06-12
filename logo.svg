@@ -1,0 +1,79 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Frontend Logo: Cubos modulares formando una pantalla -->
+  <defs>
+    <linearGradient id="gradBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0369a1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Marco de pantalla -->
+  <rect x="30" y="30" width="196" height="180" fill="none" stroke="url(#gradBlue)" stroke-width="3" rx="4"/>
+
+  <!-- Cubos superiores izquierda (fila 1) -->
+  <g>
+    <!-- Cubo 1 superior izquierda -->
+    <rect x="45" y="55" width="32" height="32" fill="#06b6d4" opacity="0.9"/>
+    <polygon points="45,55 60,42 92,42 77,55" fill="#0891b2" opacity="0.7"/>
+    <polygon points="77,55 92,42 92,74 77,87" fill="#0369a1" opacity="0.8"/>
+  </g>
+
+  <!-- Cubos superiores centro -->
+  <g>
+    <!-- Cubo 2 -->
+    <rect x="95" y="55" width="32" height="32" fill="#06b6d4" opacity="0.9"/>
+    <polygon points="95,55 110,42 142,42 127,55" fill="#0891b2" opacity="0.7"/>
+    <polygon points="127,55 142,42 142,74 127,87" fill="#0369a1" opacity="0.8"/>
+  </g>
+
+  <!-- Cubos superiores derecha -->
+  <g>
+    <!-- Cubo 3 -->
+    <rect x="145" y="55" width="32" height="32" fill="#06b6d4" opacity="0.9"/>
+    <polygon points="145,55 160,42 192,42 177,55" fill="#0891b2" opacity="0.7"/>
+    <polygon points="177,55 192,42 192,74 177,87" fill="#0369a1" opacity="0.8"/>
+  </g>
+
+  <!-- Cubos fila 2 izquierda -->
+  <g>
+    <rect x="45" y="105" width="32" height="32" fill="#0891b2" opacity="0.85"/>
+    <polygon points="45,105 60,92 92,92 77,105" fill="#06b6d4" opacity="0.6"/>
+    <polygon points="77,105 92,92 92,124 77,137" fill="#0369a1" opacity="0.75"/>
+  </g>
+
+  <!-- Cubos fila 2 centro -->
+  <g>
+    <rect x="95" y="105" width="32" height="32" fill="#0891b2" opacity="0.85"/>
+    <polygon points="95,105 110,92 142,92 127,105" fill="#06b6d4" opacity="0.6"/>
+    <polygon points="127,105 142,92 142,124 127,137" fill="#0369a1" opacity="0.75"/>
+  </g>
+
+  <!-- Cubos fila 2 derecha -->
+  <g>
+    <rect x="145" y="105" width="32" height="32" fill="#0891b2" opacity="0.85"/>
+    <polygon points="145,105 160,92 192,92 177,105" fill="#06b6d4" opacity="0.6"/>
+    <polygon points="177,105 192,92 192,124 177,137" fill="#0369a1" opacity="0.75"/>
+  </g>
+
+  <!-- Cubos fila 3 izquierda -->
+  <g>
+    <rect x="45" y="155" width="32" height="32" fill="#0369a1" opacity="0.9"/>
+    <polygon points="45,155 60,142 92,142 77,155" fill="#0891b2" opacity="0.7"/>
+    <polygon points="77,155 92,142 92,174 77,187" fill="#06b6d4" opacity="0.6"/>
+  </g>
+
+  <!-- Cubos fila 3 centro -->
+  <g>
+    <rect x="95" y="155" width="32" height="32" fill="#0369a1" opacity="0.9"/>
+    <polygon points="95,155 110,142 142,142 127,155" fill="#0891b2" opacity="0.7"/>
+    <polygon points="127,155 142,142 142,174 127,187" fill="#06b6d4" opacity="0.6"/>
+  </g>
+
+  <!-- Cubos fila 3 derecha -->
+  <g>
+    <rect x="145" y="155" width="32" height="32" fill="#0369a1" opacity="0.9"/>
+    <polygon points="145,155 160,142 192,142 177,155" fill="#0891b2" opacity="0.7"/>
+    <polygon points="177,155 192,142 192,174 177,187" fill="#06b6d4" opacity="0.6"/>
+  </g>
+
+</svg>
