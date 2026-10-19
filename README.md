@@ -240,11 +240,7 @@ El CI (GitHub Actions) publica los 14 paquetes al pushear un tag `v*`:
 
 ```bash
 # 1. Sube la versión en los 14 libs/shared/*/publish.json
-
-> 🪞 **Espejo público.** El desarrollo se hace en un repositorio privado; este se actualiza periódicamente con una instantánea del código.
 # 2. Commit + tag + push
-
-> 🪞 **Espejo público.** El desarrollo se hace en un repositorio privado; este se actualiza periódicamente con una instantánea del código.
 git add libs/shared/*/publish.json
 git commit -m "chore: bump version to 1.0.0"
 git tag v1.0.0
