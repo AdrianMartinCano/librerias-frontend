@@ -6,7 +6,7 @@ import {
   signal,
   inject,
 } from '@angular/core';
-import { PaymentMethod, OrderRequest, CheckoutStep } from '@org/models';
+import { PaymentMethod, OrderRequest, CheckoutStep, FormatService } from '@org/models';
 import { DynamicFormComponent } from '@org/forms';
 import { CartService } from '@org/products';
 import { CheckoutService } from '../checkout.service';
@@ -98,7 +98,9 @@ export class CheckoutComponent {
     return this.paymentOptions.find((o) => o.value === method)?.label ?? method;
   }
 
+  private readonly fmt = inject(FormatService);
+
   formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
+    return this.fmt.money(price);
   }
 }

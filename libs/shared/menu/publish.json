@@ -1,0 +1,13 @@
+{
+    "name":  "@adrianmartincano/ng-menu",
+    "version":  "0.5.4",
+    "peerDependencies":  {
+                             "@angular/common":  "\u003e=21.0.0",
+                             "@angular/core":  "\u003e=21.0.0",
+                             "@adrianmartincano/ng-theme":  "\u003e=0.0.1",
+                             "@adrianmartincano/ng-models":  "\u003e=0.0.1"
+                         },
+    "publishConfig":  {
+                          "registry":  "https://npm.pkg.github.com"
+                      }
+}

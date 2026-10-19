@@ -1,26 +1,14 @@
+/* Design system compartido — define TODAS las variables que usan los componentes
+   (inputs, foco, superficies, etc.). Debe ir antes que cualquier regla. */
+@import '../../../libs/shared/theme/index.css';
+/* Estilos del editor CMS */
+@import '../../../libs/shared/cms-editor/src/lib/styles/cms-editor.css';
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Marca del demo — sobreescribe sólo el acento sobre el theme base */
 :root {
-  --color-primary:     #1e1e1e;
-  --color-accent:      #e05e28;
-  --color-surface:     #f8f8f8;
-  --color-bg:          #ffffff;
-  --color-text:        #1e1e1e;
-  --color-text-muted:  #666666;
-  --color-text-inverse:#ffffff;
-  --color-border:      #e2e2e2;
-  --radius-md:         0.5rem;
-  --font-family:       'Inter', system-ui, -apple-system, sans-serif;
-  --space-4:           1rem;
-  --space-6:           1.5rem;
-  --font-size-base:    1rem;
-  --font-size-xl:      1.25rem;
-  --font-size-3xl:     1.875rem;
-  --font-size-4xl:     2.25rem;
-  --font-weight-bold:  700;
-  --font-weight-semibold: 600;
-  --line-height-relaxed: 1.75;
-  --transition-fast:   120ms ease;
+  --color-accent: #e05e28;
 }
 
 body {
@@ -78,6 +66,17 @@ body {
 .site-nav__links a:hover,
 .site-nav__links a.active { color: #fff; }
 
+.site-nav__theme {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 8px;
+  background: rgba(255,255,255,.08);
+  color: #fff; font-size: 1rem; cursor: pointer; line-height: 1;
+  transition: background var(--transition-fast, 120ms ease);
+}
+.site-nav__theme:hover { background: rgba(255,255,255,.2); }
+
 /* Loading / error state */
 .page-state {
   display: flex;
@@ -102,9 +101,6 @@ body {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* Estilos del editor CMS (copiados inline para no depender del path de publish) */
-@import 'libs/shared/cms-editor/src/lib/styles/cms-editor.css';
 
 /* Footer mínimo */
 .site-footer {

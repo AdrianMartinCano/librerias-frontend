@@ -24,6 +24,8 @@ export interface LegalConfig {
   country?: string;
   /** Autoridad de control (default: AEPD) */
   supervisoryAuthority?: string;
+  /** URL de la autoridad de control (default: https://www.aepd.es). Cámbiala si `supervisoryAuthority` no es la AEPD. */
+  supervisoryAuthorityUrl?: string;
   /**
    * HTML personalizado para sobrescribir secciones completas (h2 incluido).
    * Si una clave está presente, se renderiza su valor en lugar del texto genérico.

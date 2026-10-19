@@ -1,8 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { CurrencyPipe, JsonPipe } from '@angular/common';
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { JsonPipe } from '@angular/common';
 import { TableComponent, CardComponent, ButtonComponent, ToastService, SkeletonComponent, LoaderComponent, ModalComponent } from '@org/ui';
 import { DynamicFormComponent } from '@org/forms';
 import { LoginComponent, AuthService, GOOGLE, GITHUB, TWITTER, FACEBOOK } from '@org/auth';
@@ -13,43 +12,7 @@ import { CmsPageComponent } from '@org/cms';
 import { BookingFormComponent } from '@org/reservations';
 import { CmsPage, BookingService as BookingServiceModel, TimeSlot } from '@org/models';
 import { DEMO_PRODUCTS } from '../product-detail/product-detail.component';
-import { Column, FormField, AuthResponse, SocialProvider, UploadError, Product } from '@org/models';
-
-/* ── Validadores personalizados reutilizables ── */
-
-function testValidator(ctrl: AbstractControl): ValidationErrors | null {
-  const value = String(ctrl.value ?? '');
-  if (!value) return null;
-
-  const numeros = (value.match(/\d/g) ?? []).length;
-  const letras  = (value.match(/[a-zA-ZáéíóúÁÉÍÓÚñÑ]/g) ?? []).length;
-  const otros   = value.length - numeros - letras;
-
-  if (otros > 0)    return { message: 'Solo se permiten letras y números' };
-  if (numeros > 3)  return { message: `Máximo 3 números (tienes ${numeros})` };
-  if (letras > 10)  return { message: `Máximo 10 letras (tienes ${letras})` };
-
-  return null;
-}
-
-
-/* ── Datos de prueba ─────────────────────────── */
-interface Pedido {
-  id: number;
-  cliente: string;
-  producto: string;
-  total: number;
-  estado: string;
-  fecha: string;
-  pagado: boolean;
-}
-
-interface Material {
-  material: string;
-  cantidad: number;
-  precio: number;
-  disponible: boolean;
-}
+import { Column, FormField, AuthResponse, SocialProvider, UploadError, Product, FormatService } from '@org/models';
 
 const CMS_LANDING_FALLBACK: CmsPage = {
   slug: 'home',
@@ -69,7 +32,7 @@ const CMS_LANDING_FALLBACK: CmsPage = {
 @Component({
   selector: 'app-demo',
   standalone: true,
-  imports: [TableComponent, CardComponent, ButtonComponent, CurrencyPipe, JsonPipe, DynamicFormComponent, LoginComponent, UploadComponent, ProductGridComponent, CartSummaryComponent, CheckoutComponent, OrderCardComponent, CmsPageComponent, BookingFormComponent, SkeletonComponent, LoaderComponent, ModalComponent],
+  imports: [TableComponent, CardComponent, ButtonComponent, JsonPipe, DynamicFormComponent, LoginComponent, UploadComponent, ProductGridComponent, CartSummaryComponent, CheckoutComponent, OrderCardComponent, CmsPageComponent, BookingFormComponent, SkeletonComponent, LoaderComponent, ModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="demo">
@@ -166,7 +129,7 @@ const CMS_LANDING_FALLBACK: CmsPage = {
                 </p>
                 <div style="margin-top: var(--space-3); display: flex; justify-content: space-between; align-items: center;">
                   <strong style="font-size: var(--font-size-xl); color: var(--color-text);">
-                    {{ p.precio | currency:'EUR':'symbol':'1.2-2':'es' }}
+                    {{ formatPrecio(p.precio) }}
                   </strong>
                   <lib-button variant="accent" size="sm">Añadir</lib-button>
                 </div>
@@ -1224,6 +1187,12 @@ export class DemoComponent {
   ];
 
   /* ── Cards ── */
+  // Usa el FormatService compartido: los precios reaccionan al selector de moneda del navbar.
+  private readonly fmt = inject(FormatService);
+  formatPrecio(precio: number): string {
+    return this.fmt.money(precio);
+  }
+
   productos = [
     {
       id: 1,

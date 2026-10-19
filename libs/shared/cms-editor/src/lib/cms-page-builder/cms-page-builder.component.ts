@@ -22,6 +22,7 @@ const BLOCK_TYPES: { type: CmsBlockType; label: string }[] = [
   { type: 'counters',     label: 'Contadores' },
   { type: 'trust-badges', label: 'Trust Badges' },
   { type: 'newsletter',   label: 'Newsletter' },
+  { type: 'calendar',     label: 'Calendario' },
 ];
 
 @Component({
@@ -232,6 +233,10 @@ export class CmsPageBuilderComponent implements OnInit {
   readonly previewPath = input('/cms-preview');
 
   readonly saved  = output<{ slug: string; title: string; description: string; blocks: CmsBlock[]; published: boolean }>();
+  // "cancel" es el nombre semántico correcto (cancelar la edición) y forma parte de la API
+  // pública del componente; renombrarlo rompería a los consumidores. La regla no-output-native
+  // es aquí un falso positivo.
+  // eslint-disable-next-line @angular-eslint/no-output-native
   readonly cancel = output<void>();
 
   readonly blocks      = signal<CmsBlock[]>([]);
@@ -267,6 +272,8 @@ export class CmsPageBuilderComponent implements OnInit {
     ).subscribe(() => this.sendPreviewUpdate());
 
     const readyHandler = (e: MessageEvent) => {
+      // Solo aceptamos el "ready" de NUESTRO iframe de preview, no de cualquier ventana.
+      if (e.source !== this.previewFrame?.nativeElement?.contentWindow) return;
       if (e.data?.type === 'CMS_PREVIEW_READY') this.sendPreviewUpdate();
     };
     window.addEventListener('message', readyHandler);
@@ -314,7 +321,17 @@ export class CmsPageBuilderComponent implements OnInit {
       description: v.description ?? '',
       blocks:      this.blocks(),
     };
-    iframe.contentWindow.postMessage({ type: 'CMS_PREVIEW_UPDATE', page }, '*');
+    // Dirigido al origen del iframe (no '*'): no difundimos el contenido de la página a terceros.
+    iframe.contentWindow.postMessage({ type: 'CMS_PREVIEW_UPDATE', page }, this.previewOrigin());
+  }
+
+  /** Origen del iframe de preview, derivado de previewPath (relativo → mismo origen). */
+  private previewOrigin(): string {
+    try {
+      return new URL(this.previewPath(), location.origin).origin;
+    } catch {
+      return location.origin;
+    }
   }
 
   private defaultData(type: CmsBlockType): Record<string, unknown> {
@@ -331,6 +348,7 @@ export class CmsPageBuilderComponent implements OnInit {
       'counters':     { items: [], cols: 4 },
       'trust-badges': { items: [], align: 'left' },
       'newsletter':   { layout: 'inline', background: 'surface', align: 'center' },
+      'calendar':     { busyEndpoint: '/api/busy', monthsAhead: 2 },
     };
     return defaults[type] ?? {};
   }

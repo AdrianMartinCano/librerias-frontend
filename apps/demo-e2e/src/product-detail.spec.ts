@@ -107,12 +107,8 @@ test.describe('Product Detail Page', () => {
     const outOfStockProduct = page.locator('[class*="product-card"]').filter({ has: page.locator('text="Out of Stock"') }).first();
 
     // Get the product before clicking to handle case where there might not be any
-    const hasOutOfStock = await outOfStockProduct.count() > 0;
-
-    if (!hasOutOfStock) {
-      // Skip test if no out-of-stock products
-      return;
-    }
+    // El test prueba el comportamiento de "agotado", así que exige que exista uno
+    await expect(outOfStockProduct).toBeVisible();
 
     await outOfStockProduct.click();
 

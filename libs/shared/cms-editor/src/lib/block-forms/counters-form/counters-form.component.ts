@@ -44,7 +44,7 @@ export class CountersFormComponent implements OnInit {
   form!: FormGroup;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private fb: FormBuilder) {}
+  private readonly fb = inject(FormBuilder);
 
   get items(): FormArray { return this.form.get('items') as FormArray; }
 
@@ -77,7 +77,7 @@ export class CountersFormComponent implements OnInit {
     this.changed.emit({
       title: v.title || undefined,
       cols:  Number(v.cols) as 2 | 3 | 4,
-      items: v.items.map((item: any) => ({
+      items: v.items.map((item: { value: number | string; label: string; prefix?: string; suffix?: string }) => ({
         value:  Number(item.value),
         label:  item.label,
         prefix: item.prefix || undefined,

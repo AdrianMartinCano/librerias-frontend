@@ -9,8 +9,8 @@ import { LEGAL_STYLES } from '../legal-styles';
   encapsulation: ViewEncapsulation.None,
   styles: [LEGAL_STYLES],
   template: `
-    <article class="legal-page py-12">
-      <h1 class="mb-2">Política de Privacidad</h1>
+    <article class="legal-page py-12" aria-labelledby="privacy-title">
+      <h1 class="mb-2" id="privacy-title">Política de Privacidad</h1>
       <p class="text-sm text-muted mb-8">Última actualización: {{ lastUpdated() }}</p>
 
       @if (cfg().customSections?.['responsable']) {
@@ -128,7 +128,8 @@ import { LEGAL_STYLES } from '../legal-styles';
           <p class="text-sm">
             Si consideras que el tratamiento no se ajusta a la normativa, tienes derecho a presentar
             una reclamación ante la
-            <a href="https://www.aepd.es" target="_blank" rel="noopener">{{ authority() }}</a>.
+            <a [href]="authorityUrl()" target="_blank" rel="noopener noreferrer"
+               [attr.aria-label]="authority() + ' (abre en una pestaña nueva)'">{{ authority() }}</a>.
           </p>
         </section>
       }
@@ -155,5 +156,9 @@ export class PrivacyPolicyComponent {
 
   readonly authority = computed(() =>
     this.cfg().supervisoryAuthority ?? 'Agencia Española de Protección de Datos (AEPD)'
+  );
+
+  readonly authorityUrl = computed(() =>
+    this.cfg().supervisoryAuthorityUrl ?? 'https://www.aepd.es'
   );
 }

@@ -39,7 +39,7 @@ export const anyRoleGuard = (...roles: string[]): CanActivateFn => {
 };
 
 /** Redirige al home si ya está autenticado (para login/registro). */
-export const guestGuard: CanActivateFn = (_route, _state) => {
+export const guestGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);
 

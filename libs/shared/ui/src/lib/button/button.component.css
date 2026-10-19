@@ -23,6 +23,7 @@
 
 .lib-btn:active:not(:disabled)    { transform: scale(0.97); }
 .lib-btn:disabled, .lib-btn--loading { opacity: 0.45; cursor: not-allowed; }
+.lib-btn:focus-visible { outline: none; box-shadow: var(--focus-ring, 0 0 0 3px rgba(255,77,77,.38)); }
 
 /* Tamaños */
 .lib-btn--sm   { padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);  font-size: var(--font-size-sm, 0.875rem); }

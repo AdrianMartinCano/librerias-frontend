@@ -1,42 +1,13 @@
-# ==============================================================================
-# publish.ps1 — Automática de versionado y publicación en GitHub Packages
-# ==============================================================================
+# publish.ps1 — Sube la version y publica librerias a GitHub Packages
 #
-# Este script automatiza todo el proceso de publicación de librerías Angular
-# a GitHub Packages (npm registry). Maneja dos modos:
-#
-# 1. MODO LOCAL (default):
-#    - Incrementa versión en publish.json
-#    - Ejecuta: npm run build
-#    - Publica: npm publish de cada librería
-#    - Desde tu ordenador (requiere NPM_TOKEN configurado)
-#
-# 2. MODO CI (-CI flag):
-#    - Incrementa versión
-#    - Crea commit + tag (v1.0.0, v1.0.1, etc.)
-#    - Hace push del tag a GitHub
-#    - GitHub Actions se dispara automáticamente y publica
-#
-# ==============================================================================
-# EJEMPLOS DE USO:
-# ==============================================================================
-#
-#   .\publish.ps1
-#   → Versión patch (1.0.0 -> 1.0.1), publica todas las librerías
-#
-#   .\publish.ps1 minor
-#   → Versión minor (1.0.0 -> 1.1.0), publica todas las librerías
-#
-#   .\publish.ps1 patch -CI
-#   → Modo CI: crea tag v1.0.1 y GitHub Actions publica automáticamente
-#
-#   .\publish.ps1 patch ui
-#   → Solo publica la librería 'ui' (modo local)
-#
-#   .\publish.ps1 patch theme,auth,ui
-#   → Publica solo esas 3 librerías (modo local)
-#
-# ==============================================================================
+# Modos de uso:
+#   .\publish.ps1              -> patch local:  sube 1.0.0->1.0.1, buildea y publica tu mismo
+#   .\publish.ps1 minor        -> minor local:  sube 1.0.0->1.1.0
+#   .\publish.ps1 patch -CI    -> patch + CI:   sube version, crea tag, GitHub Actions publica
+#   .\publish.ps1 minor -CI    -> minor + CI
+#   .\publish.ps1 patch ui     -> solo la libreria 'ui' (solo modo local)
+#   .\publish.ps1 patch theme  -> solo el design system CSS (solo modo local)
+#   .\publish.ps1 patch auth,ui,theme -> varias a la vez (solo modo local)
 
 param(
     [ValidateSet("patch","minor","major")]
@@ -47,7 +18,10 @@ param(
 
 Set-Location $PSScriptRoot
 
-$allLibs    = @("models","auth","ui","forms","upload","products","newsletter","ecommerce","cms","cms-editor","reservations","cookies","legal")
+# OJO: el orden importa. Cada libreria se buildea y se enlaza en node_modules/@org
+# para la siguiente, asi que una libreria debe ir DESPUES de aquellas de las que
+# depende (p. ej. markdown antes que blog y forum, que la consumen).
+$allLibs    = @("models","markdown","auth","ui","forms","upload","products","newsletter","ecommerce","blog","forum","cms","cms-editor","reservations","dining","menu","cookies","legal","events")
 $cssLibs    = @("theme")
 $allTargets = $allLibs + $cssLibs
 
@@ -131,7 +105,9 @@ if ($CI) {
     Write-Host ""
     Write-Host "Creando commit y tag v$newVersion..." -ForegroundColor Magenta
 
-    git add libs/shared/ publish.ps1 .github/workflows/publish.yml
+    # tsconfig.base.json y docs/ entran tambien: al anadir una libreria nueva su path
+    # de TypeScript y su ficha viven ahi, y si se quedan fuera el repo queda a medias.
+    git add libs/shared/ publish.ps1 .github/workflows/publish.yml tsconfig.base.json docs/
     git commit -m "chore: bump version to $newVersion"
     if ($LASTEXITCODE -ne 0) { Write-Error "git commit fallo."; exit 1 }
 
@@ -139,8 +115,9 @@ if ($CI) {
     if ($LASTEXITCODE -ne 0) { Write-Error "git tag fallo."; exit 1 }
 
     git push
-    git push --tags
     if ($LASTEXITCODE -ne 0) { Write-Error "git push fallo."; exit 1 }
+    git push origin "v$newVersion"   # solo el tag nuevo (--tags empujaba tags viejos y fallaba)
+    if ($LASTEXITCODE -ne 0) { Write-Error "git push del tag v$newVersion fallo."; exit 1 }
 
     Write-Host ""
     Write-Host "OK Tag v$newVersion pusheado. GitHub Actions publicara las librerias en unos minutos." -ForegroundColor Green

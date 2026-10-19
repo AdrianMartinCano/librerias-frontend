@@ -10,7 +10,12 @@ interface CalendarDay {
   isPast:         boolean;
   isSelected:     boolean;
   isToday:        boolean;
+  isBusy:         boolean;        // tiene reservas (modo readonly / marca de ocupado)
+  selectable:     boolean;        // si se puede pulsar, según el modo
 }
+
+/** available = solo días con disponibilidad · all = cualquier día futuro (admin) · readonly = solo ver */
+export type CalendarMode = 'available' | 'all' | 'readonly';
 
 const WEEK_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 const MONTHS    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -41,12 +46,13 @@ const MONTHS    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Ago
             class="lib-cal__day"
             [class.lib-cal__day--other]="!day.isCurrentMonth"
             [class.lib-cal__day--today]="day.isToday"
-            [class.lib-cal__day--available]="day.isAvailable"
+            [class.lib-cal__day--available]="day.isAvailable && mode() !== 'readonly'"
+            [class.lib-cal__day--busy]="day.isBusy"
             [class.lib-cal__day--selected]="day.isSelected"
-            [class.lib-cal__day--disabled]="!day.isAvailable || day.isPast || !day.isCurrentMonth"
-            [disabled]="!day.isAvailable || day.isPast || !day.isCurrentMonth"
+            [class.lib-cal__day--disabled]="!day.selectable"
+            [disabled]="!day.selectable"
             (click)="selectDay(day)"
-            [attr.aria-label]="day.date ? formatLabel(day.date) : null"
+            [attr.aria-label]="day.date ? dayAria(day) : null"
             [attr.aria-pressed]="day.isSelected"
           >
             {{ day.day }}
@@ -56,8 +62,12 @@ const MONTHS    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Ago
 
       <!-- Leyenda -->
       <div class="lib-cal__legend">
-        <span class="lib-cal__legend-dot lib-cal__legend-dot--available"></span> Disponible
-        <span class="lib-cal__legend-dot lib-cal__legend-dot--selected"></span> Seleccionado
+        @if (mode() === 'readonly') {
+          <span class="lib-cal__legend-dot lib-cal__legend-dot--busy"></span> Ocupado
+        } @else {
+          <span class="lib-cal__legend-dot lib-cal__legend-dot--available"></span> Disponible
+          <span class="lib-cal__legend-dot lib-cal__legend-dot--selected"></span> Seleccionado
+        }
       </div>
     </div>
   `,
@@ -66,47 +76,55 @@ const MONTHS    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Ago
 
     .lib-cal__header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: var(--space-4, 1rem);
+      margin-bottom: var(--space-3, .75rem);
     }
 
     .lib-cal__nav {
-      width: 36px; height: 36px;
+      width: 34px; height: 34px;
+      display: inline-flex; align-items: center; justify-content: center;
       border: 1px solid var(--color-border, #e0e0e0);
-      border-radius: var(--radius-md, .5rem);
+      border-radius: 50%;
       background: var(--color-background, #fff);
       color: var(--color-text, #1a1a1a);
-      font-size: 1.25rem; cursor: pointer;
-      transition: background var(--transition-fast, 120ms ease);
+      font-size: 1.1rem; line-height: 1; cursor: pointer;
+      transition: background var(--transition-fast, 120ms ease), color var(--transition-fast, 120ms ease), border-color var(--transition-fast, 120ms ease);
     }
-    .lib-cal__nav:hover { background: var(--color-surface, #f8f9fa); }
+    .lib-cal__nav:hover {
+      background: var(--cal-nav-hover-bg, color-mix(in srgb, var(--color-accent, #ff4d4d) 10%, transparent));
+      color: var(--color-accent, #ff4d4d);
+      border-color: color-mix(in srgb, var(--color-accent, #ff4d4d) 40%, var(--color-border, #e0e0e0));
+    }
+    .lib-cal__nav:focus-visible { outline: 2px solid var(--color-accent, #ff4d4d); outline-offset: 2px; }
 
     .lib-cal__month {
-      font-size: var(--font-size-base, 1rem);
-      font-weight: var(--font-weight-semibold, 600);
+      font-size: var(--font-size-lg, 1.125rem);
+      font-weight: var(--font-weight-bold, 700);
       color: var(--color-text, #1a1a1a);
+      text-transform: capitalize; letter-spacing: -.01em;
     }
 
     .lib-cal__grid {
-      display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: var(--space-1, .35rem);
     }
 
     .lib-cal__wd {
-      text-align: center; font-size: var(--font-size-xs, .75rem);
+      text-align: center; font-size: var(--font-size-xs, .7rem);
       font-weight: var(--font-weight-semibold, 600);
+      text-transform: uppercase; letter-spacing: .06em;
       color: var(--color-text-muted, #909090);
-      padding: var(--space-2, .5rem) 0;
+      padding-bottom: var(--space-2, .5rem);
     }
 
     .lib-cal__day {
-      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-      border: none; border-radius: var(--radius-md, .5rem);
+      min-height: 52px; padding: var(--space-2, .5rem) 0;
+      display: flex; align-items: center; justify-content: center;
+      border: none; border-radius: var(--cal-day-radius, var(--radius-md, .5rem));
       font-size: var(--font-size-sm, .875rem); font-family: inherit;
-      background: none; cursor: pointer;
-      transition: background var(--transition-fast, 120ms ease), color var(--transition-fast, 120ms ease);
-      color: var(--color-text-muted, #909090);
+      background: none; cursor: pointer; color: var(--color-text-muted, #909090);
+      transition: background var(--transition-fast, 120ms ease), color var(--transition-fast, 120ms ease), box-shadow var(--transition-fast, 120ms ease);
     }
 
-    .lib-cal__day--other    { opacity: .25; pointer-events: none; }
+    .lib-cal__day--other    { opacity: .3; pointer-events: none; }
     .lib-cal__day:disabled  { cursor: not-allowed; }
 
     .lib-cal__day--available {
@@ -114,18 +132,37 @@ const MONTHS    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Ago
       font-weight: var(--font-weight-medium, 500);
     }
     .lib-cal__day--available:hover {
-      background: color-mix(in srgb, var(--color-accent, #ff4d4d) 12%, transparent);
-      color: var(--color-accent, #ff4d4d);
+      background: var(--cal-day-hover-bg, color-mix(in srgb, var(--color-accent, #ff4d4d) 12%, transparent));
+      color: var(--cal-day-hover-fg, var(--color-accent, #ff4d4d));
     }
+    .lib-cal__day:focus-visible { outline: 2px solid var(--color-accent, #ff4d4d); outline-offset: 2px; }
 
     .lib-cal__day--today {
-      border: 1.5px solid var(--color-border, #e0e0e0);
+      box-shadow: inset 0 0 0 1.5px var(--cal-today-ring, color-mix(in srgb, var(--color-accent, #ff4d4d) 45%, var(--color-border, #e0e0e0)));
+      font-weight: var(--font-weight-semibold, 600);
     }
 
     .lib-cal__day--selected {
-      background: var(--color-accent, #ff4d4d) !important;
-      color: #fff !important;
+      background: var(--cal-selected-bg, var(--color-accent, #ff4d4d)) !important;
+      color: var(--cal-selected-fg, #fff) !important;
       font-weight: var(--font-weight-bold, 700);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--color-accent, #ff4d4d) 35%, transparent) !important;
+    }
+
+    /* Día con reservas (modo readonly / marca de ocupado): celda con fondo de acento suave */
+    .lib-cal__day--busy {
+      background: var(--cal-busy-bg, color-mix(in srgb, var(--color-accent, #ff4d4d) 16%, transparent));
+      color: var(--cal-busy-fg, var(--color-accent-hover, var(--color-accent, #ff4d4d)));
+      font-weight: var(--font-weight-semibold, 600);
+    }
+    .lib-cal__day--busy:not(:disabled):hover {
+      background: color-mix(in srgb, var(--color-accent, #ff4d4d) 26%, transparent);
+    }
+
+    .lib-cal__legend-dot--busy {
+      background: color-mix(in srgb, var(--color-accent, #ff4d4d) 16%, transparent);
+      border: 1px solid var(--color-accent, #ff4d4d);
+      border-radius: 3px;
     }
 
     .lib-cal__legend {
@@ -147,6 +184,10 @@ export class BookingCalendarComponent {
   readonly selected       = input<string | null>(null);
   readonly fechaMinima    = input<string | null>(null);
   readonly fechaMaxima    = input<string | null>(null);
+  /** available = solo días disponibles · all = cualquier día futuro (admin) · readonly = solo ver */
+  readonly mode           = input<CalendarMode>('available');
+  /** Días con reservas, para marcarlos como ocupados (sobre todo en modo readonly). */
+  readonly busyDates      = input<string[]>([]);
 
   readonly diaSeleccionado = output<string>();
 
@@ -169,34 +210,48 @@ export class BookingCalendarComponent {
     const daysInMonth = new Date(y, m + 1, 0).getDate();
     const daysInPrev  = new Date(y, m, 0).getDate();
     const avail       = new Set(this.disponibilidad());
+    const busy        = new Set(this.busyDates());
     const sel         = this.selected();
     const minDate     = this.fechaMinima() ?? this.todayStr;
+    const maxDate     = this.fechaMaxima();
+    const mode        = this.mode();
 
+    const off: CalendarDay = { date: null, day: 0, isCurrentMonth: false, isAvailable: false, isPast: true, isSelected: false, isToday: false, isBusy: false, selectable: false };
     const days: CalendarDay[] = [];
 
     // Días del mes anterior
     for (let i = firstDow - 1; i >= 0; i--) {
-      days.push({ date: null, day: daysInPrev - i, isCurrentMonth: false, isAvailable: false, isPast: true, isSelected: false, isToday: false });
+      days.push({ ...off, day: daysInPrev - i });
     }
 
     // Días del mes actual
     for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const dateStr     = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isAvailable = avail.has(dateStr);
+      const isPast      = dateStr < minDate;
+      const tooLate     = maxDate ? dateStr > maxDate : false;
+      // Selectividad según el modo:
+      const selectable =
+        mode === 'readonly' ? true :
+        mode === 'all'      ? !isPast && !tooLate :
+        /* available */       isAvailable && !isPast && !tooLate;
       days.push({
         date:           dateStr,
         day:            d,
         isCurrentMonth: true,
-        isAvailable:    avail.has(dateStr),
-        isPast:         dateStr < minDate,
+        isAvailable,
+        isPast,
         isSelected:     dateStr === sel,
         isToday:        dateStr === this.todayStr,
+        isBusy:         busy.has(dateStr),
+        selectable,
       });
     }
 
     // Días del mes siguiente
     const remaining = 42 - days.length;
     for (let d = 1; d <= remaining; d++) {
-      days.push({ date: null, day: d, isCurrentMonth: false, isAvailable: false, isPast: true, isSelected: false, isToday: false });
+      days.push({ ...off, day: d });
     }
 
     return days;
@@ -213,9 +268,15 @@ export class BookingCalendarComponent {
   }
 
   selectDay(day: CalendarDay): void {
-    if (day.date && day.isAvailable && !day.isPast) {
+    if (day.date && day.selectable) {
       this.diaSeleccionado.emit(day.date);
     }
+  }
+
+  dayAria(day: CalendarDay): string | null {
+    if (!day.date) return null;
+    const base = this.formatLabel(day.date);
+    return day.isBusy ? `${base} — ocupado` : base;
   }
 
   formatLabel(date: string): string {

@@ -41,6 +41,13 @@ npm install @adrianmartincano/ng-forms
 
 Formulario dinámico generado desde un array de campos. Usa Angular Reactive Forms internamente.
 
+> **Accesibilidad de serie:** cada control enlaza su ayuda y su error vía `aria-describedby`,
+> marca `aria-invalid`/`aria-required`, los mensajes de error usan `role="alert"` (los anuncian
+> los lectores de pantalla) y los grupos de radios se renderizan como `<fieldset>` + `<legend>`.
+>
+> **Reactivo:** el formulario se **reconstruye automáticamente** si cambia el input `fields`
+> (puedes alternar el conjunto de campos en caliente sin recrear el componente).
+
 **Importar desde `@adrianmartincano/ng-forms`** (librería separada):
 ```typescript
 import { DynamicFormComponent } from '@adrianmartincano/ng-forms';

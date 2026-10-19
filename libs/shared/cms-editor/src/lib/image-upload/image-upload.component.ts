@@ -66,7 +66,8 @@ export class CmsImageUploadComponent implements OnInit {
   readonly previewUrl = signal<string | null>(null);
 
   ngOnInit(): void {
-    if (this.initialUrl()) this.previewUrl.set(this.initialUrl()!);
+    const url = this.initialUrl();
+    if (url) this.previewUrl.set(url);
   }
 
   @ViewChild('fileInput') private fileInput!: ElementRef<HTMLInputElement>;

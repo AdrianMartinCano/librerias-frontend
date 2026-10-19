@@ -100,6 +100,7 @@ template: `<lib-legal-notice [cfg]="legal" />`
 | `activity` | ✅ | Actividad: `"peluquería"`, `"tienda de muebles"`, `"clínica dental"`... |
 | `country` | — | País de establecimiento (por defecto: España) |
 | `supervisoryAuthority` | — | Autoridad de control (por defecto: AEPD) |
+| `supervisoryAuthorityUrl` | — | URL de la autoridad de control (por defecto: `https://www.aepd.es`). Cámbiala si no es la AEPD. |
 | `customSections` | — | HTML propio para sustituir secciones completas (ver abajo) |
 
 ---

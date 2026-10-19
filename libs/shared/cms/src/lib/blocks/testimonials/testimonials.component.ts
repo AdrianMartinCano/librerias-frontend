@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, ViewEncapsulation, input, signal, computed } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, ViewEncapsulation, input } from '@angular/core';
 import { TestimonialsData } from '@org/models';
 
 @Component({

@@ -2,6 +2,11 @@
 
 Renderizador de páginas CMS para Angular: lib-cms-page pinta una página completa a partir de bloques JSON (hero, galería, FAQ, precios, CTA, newsletter...). El contenido se edita sin tocar código — ideal para que el cliente final gestione su web.
 
+> **Formato e idioma:** los importes del bloque de precios se formatean con `Intl` nativo (sin
+> `registerLocaleData`). Por defecto euros en formato español; **configurable** —otras monedas,
+> conversión por tasas y selector en el navbar— con `provideLibFormat`. Ver
+> [README raíz → Formato e idioma](../../../README.md#formato-e-idioma).
+
 ---
 
 ## Instalación
@@ -26,7 +31,7 @@ npm install @adrianmartincano/ng-cms
 | `@angular/common` | `>=21.0.0` |
 | `@angular/core` | `>=21.0.0` |
 | `@adrianmartincano/ng-theme` | `>=0.0.1` |
-| `@adrianmartincano/ng-newsletter` | `>=0.3.0` |
+| `@adrianmartincano/ng-newsletter` | `>=0.0.1` |
 
 ---
 
@@ -41,6 +46,22 @@ npm install @adrianmartincano/ng-cms
 ## CMS (`@adrianmartincano/ng-cms`)
 
 Constructor de páginas basado en bloques. Define una página como un array de objetos JSON y `<lib-cms-page>` la renderiza completa. El cliente puede editar los datos sin tocar el código.
+
+> **Accesible:** el bloque FAQ es un acordeón con patrón ARIA completo (`aria-expanded`,
+> `aria-controls`, panel con `role="region"` y `aria-labelledby`; chevron decorativo `aria-hidden`).
+> Los importes del bloque de precios se formatean con `FormatService` (multi-divisa).
+>
+> **Bloques personalizados:** `ng-cms` **no depende** de otras librerías de feature. Para renderizar
+> tipos de bloque que no vienen de serie, regístralos con `provideCmsBlocks` (usan `NgComponentOutlet`):
+>
+> ```typescript
+> import { provideCmsBlocks } from '@adrianmartincano/ng-cms';
+> import { CalendarBlockComponent } from '@adrianmartincano/ng-reservations';
+> providers: [ provideCmsBlocks({ calendar: CalendarBlockComponent }) ]
+> ```
+>
+> El bloque **`calendar`** (calendario público de ocupación, solo lectura) vive en
+> `@adrianmartincano/ng-reservations` — así, quien solo usa el CMS no arrastra reservations.
 
 ```typescript
 import { CmsPageComponent, CmsBlockComponent } from '@adrianmartincano/ng-cms';

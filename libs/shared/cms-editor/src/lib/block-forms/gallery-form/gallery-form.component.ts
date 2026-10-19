@@ -46,7 +46,7 @@ export class GalleryFormComponent implements OnInit {
   form!: FormGroup;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private fb: FormBuilder) {}
+  private readonly fb = inject(FormBuilder);
 
   get images(): FormArray { return this.form.get('images') as FormArray; }
 

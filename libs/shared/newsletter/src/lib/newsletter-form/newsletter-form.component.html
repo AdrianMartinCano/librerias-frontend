@@ -15,7 +15,7 @@
     <div class="nl-form__row">
       <div class="nl-form__field">
         <input
-          id="nl-email"
+          [id]="fieldId"
           type="email"
           class="lib-input"
           [class.lib-input--error]="email.invalid && email.touched"
@@ -23,9 +23,11 @@
           formControlName="email"
           autocomplete="email"
           aria-label="Email"
+          [attr.aria-invalid]="email.invalid && email.touched"
+          [attr.aria-describedby]="email.invalid && email.touched ? errorId : null"
         />
         @if (email.invalid && email.touched) {
-          <p class="lib-field-error">
+          <p class="lib-field-error" [id]="errorId" role="alert">
             @if (email.errors?.['required']) {
               Introduce tu email.
             } @else if (email.errors?.['email']) {
@@ -44,9 +46,9 @@
     </div>
 
     @if (status() === 'error') {
-      <p class="lib-field-error">{{ serverMessage() ?? errorMessage() }}</p>
+      <p class="lib-field-error" role="alert">{{ serverMessage() ?? errorMessage() }}</p>
     }
   } @else {
-    <p class="nl-form__success">{{ successMessage() }}</p>
+    <p class="nl-form__success" role="status">{{ successMessage() }}</p>
   }
 </form>

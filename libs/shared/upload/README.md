@@ -48,6 +48,13 @@ import { UploadedFile, UploadError } from '@adrianmartincano/ng-models';
 
 ### `<lib-upload>`
 
+> **Accesible:** la zona de drop es un `role="button"` operable con teclado (Enter y Espacio),
+> con `aria-disabled`; la barra de progreso es un `role="progressbar"` con `aria-valuenow`, y los
+> errores se anuncian con `role="alert"`.
+>
+> **Previews eficientes:** las miniaturas usan `URL.createObjectURL` (no base64) y se liberan
+> (`revokeObjectURL`) al quitar el archivo o destruir el componente — sin fugas de memoria.
+
 #### Inputs
 
 | Input | Tipo | Default | Descripción |

@@ -26,10 +26,19 @@
       "@adrianmartincano/ng-cms": ["./libs/shared/cms/src/index.ts"],
       "@org/cms-editor": ["./libs/shared/cms-editor/src/index.ts"],
       "@org/reservations": ["./libs/shared/reservations/src/index.ts"],
+      "@org/dining": ["./libs/shared/dining/src/index.ts"],
+      "@org/menu": ["./libs/shared/menu/src/index.ts"],
       "@org/cookies": ["./libs/shared/cookies/src/index.ts"],
       "@org/legal": ["./libs/shared/legal/src/index.ts"],
       "@org/newsletter": ["./libs/shared/newsletter/src/index.ts"],
-      "@adrianmartincano/ng-newsletter": ["./libs/shared/newsletter/src/index.ts"]
+      "@adrianmartincano/ng-newsletter": [
+        "./libs/shared/newsletter/src/index.ts"
+      ],
+      "@org/blog": ["./libs/shared/blog/src/index.ts"],
+      "@adrianmartincano/ng-blog": ["./libs/shared/blog/src/index.ts"],
+      "@org/markdown": ["./libs/shared/markdown/src/index.ts"],
+      "@adrianmartincano/ng-markdown": ["./libs/shared/markdown/src/index.ts"],
+      "@org/events": ["./libs/shared/events/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

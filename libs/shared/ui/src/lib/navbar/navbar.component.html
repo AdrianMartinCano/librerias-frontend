@@ -17,6 +17,11 @@
           @if (!item.children?.length) {
             @if (item.external) {
               <a class="lib-nav__link" [href]="item.path" target="_blank" rel="noopener" (click)="closeMenu()">
+                @if (item.icon) {
+                  <svg class="lib-nav__link-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path [attr.d]="item.icon" />
+                  </svg>
+                }
                 {{ item.label }}
                 @if (item.badge) { <span class="lib-nav__badge">{{ item.badge }}</span> }
               </a>
@@ -28,6 +33,11 @@
                 [routerLinkActiveOptions]="{ exact: item.path === '/' }"
                 (click)="closeMenu()"
               >
+                @if (item.icon) {
+                  <svg class="lib-nav__link-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path [attr.d]="item.icon" />
+                  </svg>
+                }
                 {{ item.label }}
                 @if (item.badge) { <span class="lib-nav__badge">{{ item.badge }}</span> }
               </a>
@@ -111,6 +121,36 @@
               </svg>
             }
           </button>
+        }
+
+        @if (showCurrencySwitch() && currencies().length > 1) {
+          <div class="lib-nav__lang" [class.lib-nav__lang--open]="currencyOpen()">
+            <button
+              class="lib-nav__icon-btn lib-nav__lang-btn"
+              (click)="toggleCurrency()"
+              [attr.aria-expanded]="currencyOpen()"
+              title="Cambiar moneda"
+            >
+              <span class="lib-nav__lang-current">
+                {{ activeCurrency().symbol || activeCurrency().code }}
+              </span>
+              <svg class="lib-nav__chevron lib-nav__chevron--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            <div class="lib-nav__lang-menu">
+              @for (cur of currencies(); track cur.code) {
+                <button
+                  class="lib-nav__lang-item"
+                  [class.lib-nav__lang-item--active]="activeCurrency().code === cur.code"
+                  (click)="selectCurrency(cur.code)"
+                >
+                  @if (cur.symbol) { <span>{{ cur.symbol }}</span> }
+                  {{ cur.label || cur.code }}
+                </button>
+              }
+            </div>
+          </div>
         }
 
         @if (languages().length > 1) {

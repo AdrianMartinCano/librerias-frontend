@@ -28,6 +28,7 @@ npm install @adrianmartincano/ng-cms-editor
 | `@angular/common` | `>=21.0.0` |
 | `@angular/core` | `>=21.0.0` |
 | `@angular/forms` | `>=21.0.0` |
+| `@adrianmartincano/ng-cms` | `>=0.0.1` |
 | `@adrianmartincano/ng-models` | `>=0.0.1` |
 | `@adrianmartincano/ng-theme` | `>=0.0.1` |
 
@@ -99,9 +100,15 @@ Editor de una página concreta: añadir bloques de cualquier tipo, reordenarlos,
 
 Recibe por `postMessage` los bloques que se están editando y los renderiza con `lib-cms-page`. Se monta en una ruta pública de la app, sin navbar ni footer idealmente.
 
+> **Canal de preview seguro:** el builder envía las actualizaciones **dirigidas al origen del
+> iframe** (no a `*`) y tanto builder como receiver **validan el `source`** del mensaje (solo
+> aceptan el del frame emparejado). Así el contenido de la página no se filtra a otros orígenes/ventanas.
+
 ### `lib-block-editor` y formularios de bloque
 
-`lib-block-editor` elige automáticamente el formulario adecuado según el tipo de bloque. Los formularios individuales (`HeroFormComponent`, `GalleryFormComponent`, `FaqFormComponent`, `PricingFormComponent`, `TestimonialsFormComponent`, `CountersFormComponent`, `TrustBadgesFormComponent`, `CtaBannerFormComponent`, `TextFormComponent`, `TextImageFormComponent`, `FeaturesFormComponent`) también se exportan por si quieres montarlos a tu manera.
+`lib-block-editor` elige automáticamente el formulario adecuado según el tipo de bloque. El
+cabecera del bloque es accesible: el toggle expone `aria-expanded` y los controles de subir/bajar/
+eliminar llevan `aria-label` con el nombre del bloque. Los formularios individuales (`HeroFormComponent`, `GalleryFormComponent`, `FaqFormComponent`, `PricingFormComponent`, `TestimonialsFormComponent`, `CountersFormComponent`, `TrustBadgesFormComponent`, `CtaBannerFormComponent`, `TextFormComponent`, `TextImageFormComponent`, `FeaturesFormComponent`) también se exportan por si quieres montarlos a tu manera.
 
 ---
 

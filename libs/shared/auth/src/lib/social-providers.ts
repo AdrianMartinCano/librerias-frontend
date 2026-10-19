@@ -15,6 +15,17 @@ import {
  * ]
  */
 
+/**
+ * ⚠️ **Para entrar con Google, usa `<lib-google-button>`, no esto.**
+ *
+ * Este helper es del flujo **de redirección**: manda el navegador a un endpoint OAuth de tu
+ * backend y espera la vuelta. `GoogleButtonComponent` usa **Google Identity Services**, que
+ * es lo que implementa `spring-google`: el token llega por POST sin salir de la página y
+ * nadie tiene que montar el intercambio de OAuth.
+ *
+ * Este se queda para quien ya tenga montada la redirección, o para un Google con scopes
+ * distintos (YouTube, por ejemplo).
+ */
 export const GOOGLE = (url: string, label = 'Continuar con Google'): SocialProvider => ({
   id: 'google', label, url,
   icon: ICON_GOOGLE,

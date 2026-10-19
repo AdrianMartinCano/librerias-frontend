@@ -44,7 +44,7 @@ export class FeaturesFormComponent implements OnInit {
   form!: FormGroup;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private fb: FormBuilder) {}
+  private readonly fb = inject(FormBuilder);
 
   get items(): FormArray { return this.form.get('items') as FormArray; }
 

@@ -2,6 +2,11 @@
 
 Catálogo de productos para Angular: tarjeta de producto (lib-product-card), grid con filtros y ordenación (lib-product-grid) y CartService para gestionar el carrito.
 
+> **Formato e idioma:** los importes se formatean con `Intl` nativo (sin `registerLocaleData`).
+> Por defecto euros en formato español; **configurable** —otras monedas, conversión por tasas y
+> selector en el navbar— con `provideLibFormat`. Ver
+> [README raíz → Formato e idioma](../../../README.md#formato-e-idioma).
+
 ---
 
 ## Instalación
@@ -40,6 +45,11 @@ npm install @adrianmartincano/ng-products
 ## Products (`@adrianmartincano/ng-products`)
 
 Catálogo de productos con tarjeta individual, grid con filtros y servicio de carrito.
+
+> **Accesible:** la tarjeta clicable se opera con teclado (Enter/Espacio), el rating expone su
+> valor por `aria-label` (estrellas decorativas), y en el grid la búsqueda y los selectores llevan
+> `aria-label` y el contador de resultados es `aria-live`. Importes formateados con `FormatService`
+> (multi-divisa, ver [ng-models](../models/README.md)).
 
 ```typescript
 import { ProductCardComponent, ProductGridComponent, CartService } from '@adrianmartincano/ng-products';
@@ -215,6 +225,32 @@ cart.remove(productId)               // elimina el producto
 cart.updateQuantity(productId, 2)    // cambia la cantidad
 cart.clear()                         // vacía el carrito
 ```
+
+#### Opciones por línea
+
+Una línea puede llevar lo que el cliente eligió: color, complemento, dedicatoria. La
+librería **no sabe qué significan**: solo los transporta hasta el checkout, que los manda
+al backend en `opciones` (ver `spring-ecommerce` 0.3.0 y su `ValidadorOpciones`).
+
+```typescript
+cart.add(libro, 1, { complemento: 'Firmado' });
+cart.add(pieza, 1, { color: 'Morado' });
+
+// Para quitar o cambiar hay que decir DE QUÉ LÍNEA se trata
+cart.remove(libro.id, { complemento: 'Firmado' });
+cart.updateQuantity(pieza.id, 3, { color: 'Morado' });
+```
+
+**Dos líneas con el mismo producto y distintas opciones son dos líneas.** Un libro
+firmado y uno sin firmar se preparan y llegan por separado, así que se cuentan por
+separado. Si se agrupara solo por producto, pedir la segunda variante subiría la cantidad
+de la primera — y el cliente lo descubriría al recibir el pedido.
+
+Por eso `remove` y `updateQuantity` piden las opciones: sin ellas actúan sobre la línea
+**sin opciones** de ese producto, no sobre todas.
+
+Las tiendas que no usan opciones no notan ningún cambio: el parámetro es opcional y el
+carrito guardado queda idéntico al de antes.
 
 **Integración con la navbar:**
 

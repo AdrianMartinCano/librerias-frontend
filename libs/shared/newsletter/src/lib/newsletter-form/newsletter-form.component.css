@@ -59,6 +59,11 @@
   background: var(--color-accent-hover, #e63e3e);
 }
 
+.nl-form__btn:focus-visible {
+  outline: 2px solid var(--color-accent, #ff4d4d);
+  outline-offset: 2px;
+}
+
 .nl-form__btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;

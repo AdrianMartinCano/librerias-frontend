@@ -14,12 +14,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@adrianmartincano'
 
@@ -31,7 +31,10 @@ jobs:
           mkdir -p node_modules/@org
           mkdir -p node_modules/@adrianmartincano
 
-          for lib in models auth ui forms upload products newsletter ecommerce cms cms-editor reservations cookies legal; do
+          # El orden importa: cada libreria se enlaza en node_modules/@org para la
+          # siguiente, asi que va despues de aquellas de las que depende
+          # (markdown antes que blog y forum, que la consumen).
+          for lib in models markdown auth ui forms upload products newsletter ecommerce blog forum cms cms-editor reservations dining menu cookies legal events; do
             echo "=== Building @adrianmartincano/$lib ==="
 
             cp libs/shared/$lib/publish.json libs/shared/$lib/package.json
@@ -96,7 +99,7 @@ jobs:
             cd -
           done
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish theme (CSS only)
         run: |
@@ -106,4 +109,4 @@ jobs:
           cd -
           rm libs/shared/theme/package.json
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

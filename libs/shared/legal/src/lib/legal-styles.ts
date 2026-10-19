@@ -15,6 +15,17 @@ export const LEGAL_STYLES = `
     padding-left: var(--space-6);
   }
   .legal-page li { margin-bottom: var(--space-1); }
+  .legal-page a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .legal-page a:hover { text-decoration-thickness: 2px; }
+  .legal-page a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
   .legal-table {
     width: 100%;
     border-collapse: collapse;

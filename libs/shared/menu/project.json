@@ -1,0 +1,19 @@
+{
+  "name": "menu",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/menu/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  },
+  "tags": [
+    "scope:shared",
+    "type:feature"
+  ],
+  "implicitDependencies": [
+    "theme"
+  ]
+}

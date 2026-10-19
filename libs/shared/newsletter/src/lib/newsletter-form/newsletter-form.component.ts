@@ -6,6 +6,8 @@ import { NewsletterService } from '../newsletter.service';
 export type NewsletterFormLayout = 'inline' | 'stacked';
 export type NewsletterFormStatus = 'idle' | 'loading' | 'success' | 'error';
 
+let nextFormId = 0;
+
 @Component({
   selector: 'lib-newsletter-form',
   standalone: true,
@@ -26,6 +28,11 @@ export class NewsletterFormComponent {
   readonly source = input('');
 
   readonly subscribed = output<string>();
+
+  /** Ids únicos por instancia (evita colisiones con varios formularios en la misma página). */
+  private readonly uid = `nl-email-${nextFormId++}`;
+  readonly fieldId = this.uid;
+  readonly errorId = `${this.uid}-error`;
 
   private readonly fb = inject(FormBuilder);
   private readonly newsletterService = inject(NewsletterService);

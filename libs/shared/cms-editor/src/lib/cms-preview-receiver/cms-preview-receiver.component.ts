@@ -32,6 +32,8 @@ export class CmsPreviewReceiverComponent implements OnInit, OnDestroy {
   readonly page = signal<CmsPage | null>(null);
 
   private readonly handler = (event: MessageEvent) => {
+    // Solo aceptamos mensajes del frame que nos embebe (el builder), no de otras ventanas.
+    if (event.source !== window.parent) return;
     if (event.data?.type === 'CMS_PREVIEW_UPDATE') {
       this.page.set(event.data.page as CmsPage);
     }

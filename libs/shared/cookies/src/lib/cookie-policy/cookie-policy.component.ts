@@ -1,5 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, inject, input, signal } from '@angular/core';
-import { CookieService } from '../cookie.service/cookie.service';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, input, signal } from '@angular/core';
 import { CookieSettingsComponent } from '../cookie-settings/cookie-settings.component';
 
 interface CookieCategoryInfo {
@@ -147,6 +146,7 @@ const COOKIE_CATEGORIES: CookieCategoryInfo[] = [
       transition: opacity var(--transition-fast);
     }
     .cp-btn:hover { opacity: .85; }
+    .cp-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
   `],
 })
 export class CookiePolicyComponent {
@@ -157,6 +157,4 @@ export class CookiePolicyComponent {
 
   readonly categories = COOKIE_CATEGORIES;
   readonly showSettings = signal(false);
-
-  private readonly cookieService = inject(CookieService);
 }

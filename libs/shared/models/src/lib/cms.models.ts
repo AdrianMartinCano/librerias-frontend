@@ -1,7 +1,7 @@
 export type CmsBlockType =
   | 'hero' | 'text-image' | 'features' | 'gallery'
   | 'cta-banner' | 'faq' | 'testimonials' | 'text' | 'pricing'
-  | 'counters' | 'trust-badges' | 'newsletter';
+  | 'counters' | 'trust-badges' | 'newsletter' | 'calendar';
 
 export interface CmsBlock<T = Record<string, unknown>> {
   type: CmsBlockType;
@@ -155,4 +155,12 @@ export interface NewsletterBlockData {
   source?:      string;
   background?:  'primary' | 'accent' | 'surface';
   align?:       'left' | 'center';
+}
+
+export interface CalendarBlockData {
+  title?:        string;
+  /** Endpoint que devuelve la ocupación (BusySlot[] o ApiResponse<BusySlot[]>). Default '/api/busy'. */
+  busyEndpoint?: string;
+  /** Meses hacia delante a consultar. Default 2. */
+  monthsAhead?:  number;
 }

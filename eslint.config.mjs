@@ -20,21 +20,41 @@ export default [
           enforceBuildableLibDependency: true,
           allow: ['^.*/eslint(\\.base)?\\.config\\.[cm]?[jt]s$'],
           depConstraints: [
+            // ── Scope: dónde vive cada proyecto ──
+            // Las librerías compartidas solo dependen de librerías compartidas.
             {
               sourceTag: 'scope:shared',
               onlyDependOnLibsWithTags: ['scope:shared'],
             },
+            // Las apps demo pueden consumir cualquier librería compartida.
             {
-              sourceTag: 'scope:shop',
-              onlyDependOnLibsWithTags: ['scope:shop', 'scope:shared'],
+              sourceTag: 'scope:demo',
+              onlyDependOnLibsWithTags: ['scope:demo', 'scope:shared'],
             },
             {
-              sourceTag: 'scope:api',
-              onlyDependOnLibsWithTags: ['scope:api', 'scope:shared'],
+              sourceTag: 'scope:cms-demo',
+              onlyDependOnLibsWithTags: ['scope:cms-demo', 'scope:shared'],
             },
+
+            // ── Capas: la pirámide de dependencias ──
+            // foundation (theme, models) → no depende de nadie por encima.
             {
-              sourceTag: 'type:data',
-              onlyDependOnLibsWithTags: ['type:data'],
+              sourceTag: 'type:foundation',
+              onlyDependOnLibsWithTags: ['type:foundation'],
+            },
+            // feature (componentes) → solo de los fundamentos.
+            {
+              sourceTag: 'type:feature',
+              onlyDependOnLibsWithTags: ['type:foundation', 'type:feature'],
+            },
+            // composition (combinan libs) → de fundamentos, features y otras composiciones.
+            {
+              sourceTag: 'type:composition',
+              onlyDependOnLibsWithTags: [
+                'type:foundation',
+                'type:feature',
+                'type:composition',
+              ],
             },
           ],
         },

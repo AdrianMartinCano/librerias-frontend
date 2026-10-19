@@ -50,7 +50,7 @@ export class PricingFormComponent implements OnInit {
   form!: FormGroup;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private fb: FormBuilder) {}
+  private readonly fb = inject(FormBuilder);
 
   get plans(): FormArray { return this.form.get('plans') as FormArray; }
 

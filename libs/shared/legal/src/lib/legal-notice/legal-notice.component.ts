@@ -9,8 +9,8 @@ import { LEGAL_STYLES } from '../legal-styles';
   encapsulation: ViewEncapsulation.None,
   styles: [LEGAL_STYLES],
   template: `
-    <article class="legal-page py-12">
-      <h1 class="mb-2">Aviso Legal</h1>
+    <article class="legal-page py-12" aria-labelledby="legal-title">
+      <h1 class="mb-2" id="legal-title">Aviso Legal</h1>
       <p class="text-sm text-muted mb-8">Última actualización: {{ lastUpdated() }}</p>
 
       @if (cfg().customSections?.['identificativos']) {
@@ -30,7 +30,8 @@ import { LEGAL_STYLES } from '../legal-styles';
               <a [href]="'mailto:' + cfg().contactEmail">{{ cfg().contactEmail }}</a>
             </li>
             <li><strong>Sitio web:</strong>
-              <a [href]="'https://' + cfg().domain" target="_blank" rel="noopener">{{ cfg().domain }}</a>
+              <a [href]="'https://' + cfg().domain" target="_blank" rel="noopener noreferrer"
+                 [attr.aria-label]="cfg().domain + ' (abre en una pestaña nueva)'">{{ cfg().domain }}</a>
             </li>
           </ul>
         </section>

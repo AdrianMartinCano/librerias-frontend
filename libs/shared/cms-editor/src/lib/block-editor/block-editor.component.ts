@@ -12,6 +12,7 @@ import { PricingFormComponent }      from '../block-forms/pricing-form/pricing-f
 import { CountersFormComponent }     from '../block-forms/counters-form/counters-form.component';
 import { TrustBadgesFormComponent }  from '../block-forms/trust-badges-form/trust-badges-form.component';
 import { NewsletterBlockFormComponent } from '../block-forms/newsletter-form/newsletter-form.component';
+import { CalendarFormComponent }       from '../block-forms/calendar-form/calendar-form.component';
 
 const BLOCK_LABELS: Record<string, string> = {
   'hero':         'Hero',
@@ -26,6 +27,7 @@ const BLOCK_LABELS: Record<string, string> = {
   'counters':     'Contadores',
   'trust-badges': 'Trust Badges',
   'newsletter':   'Newsletter',
+  'calendar':     'Calendario',
 };
 
 @Component({
@@ -36,20 +38,26 @@ const BLOCK_LABELS: Record<string, string> = {
     FeaturesFormComponent, GalleryFormComponent, CtaBannerFormComponent,
     FaqFormComponent, TestimonialsFormComponent, PricingFormComponent,
     CountersFormComponent, TrustBadgesFormComponent, NewsletterBlockFormComponent,
+    CalendarFormComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   template: `
     <div class="cbe" [class.cbe--active]="active()">
       <div class="cbe__header">
-        <button type="button" class="cbe__toggle" (click)="toggleExpanded()">
+        <button
+          type="button"
+          class="cbe__toggle"
+          [attr.aria-expanded]="expanded"
+          (click)="toggleExpanded()"
+        >
           <span class="cbe__label">{{ label() }}</span>
-          <span class="cbe__chevron">{{ expanded ? '▲' : '▼' }}</span>
+          <span class="cbe__chevron" aria-hidden="true">{{ expanded ? '▲' : '▼' }}</span>
         </button>
         <div class="cbe__actions">
-          <button type="button" class="cbe__btn" title="Subir" [disabled]="isFirst()" (click)="move.emit('up')">↑</button>
-          <button type="button" class="cbe__btn" title="Bajar" [disabled]="isLast()" (click)="move.emit('down')">↓</button>
-          <button type="button" class="cbe__btn cbe__btn--danger" title="Eliminar" (click)="remove.emit()">✕</button>
+          <button type="button" class="cbe__btn" [attr.aria-label]="'Subir bloque ' + label()" title="Subir" [disabled]="isFirst()" (click)="move.emit('up')">↑</button>
+          <button type="button" class="cbe__btn" [attr.aria-label]="'Bajar bloque ' + label()" title="Bajar" [disabled]="isLast()" (click)="move.emit('down')">↓</button>
+          <button type="button" class="cbe__btn cbe__btn--danger" [attr.aria-label]="'Eliminar bloque ' + label()" title="Eliminar" (click)="remove.emit()">✕</button>
         </div>
       </div>
       @if (expanded) {
@@ -67,6 +75,7 @@ const BLOCK_LABELS: Record<string, string> = {
             @case ('counters')     { <lib-cms-counters-form     [initialData]="blockData()" (changed)="onChanged($event)" /> }
             @case ('trust-badges') { <lib-cms-trust-badges-form [initialData]="blockData()" (changed)="onChanged($event)" /> }
             @case ('newsletter')   { <lib-cms-newsletter-form   [initialData]="blockData()" (changed)="onChanged($event)" /> }
+            @case ('calendar')     { <lib-cms-calendar-form     [initialData]="blockData()" (changed)="onChanged($event)" /> }
           }
         </div>
       }

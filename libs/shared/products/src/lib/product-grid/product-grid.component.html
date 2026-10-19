@@ -6,13 +6,14 @@
 
       @if (showSearch()) {
         <div class="lib-product-grid__search">
-          <svg class="lib-product-grid__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="lib-product-grid__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
           <input
             class="lib-input lib-product-grid__search-input"
             type="search"
             [placeholder]="searchPlaceholder()"
+            [attr.aria-label]="searchPlaceholder()"
             [value]="searchQuery()"
             (input)="onSearch($event)"
           />
@@ -23,6 +24,7 @@
         @if (showFilters() && categories().length > 1) {
           <select
             class="lib-input lib-select lib-product-grid__filter"
+            aria-label="Filtrar por categoría"
             [value]="selectedCategory()"
             (change)="onCategoryChange($event)"
           >
@@ -36,6 +38,7 @@
         @if (showSort()) {
           <select
             class="lib-input lib-select lib-product-grid__filter"
+            aria-label="Ordenar por"
             [value]="sortBy()"
             (change)="onSortChange($event)"
           >
@@ -52,7 +55,7 @@
 
   <!-- Contador de resultados -->
   @if (showSearch() || showFilters()) {
-    <p class="lib-product-grid__count">
+    <p class="lib-product-grid__count" aria-live="polite">
       {{ filteredProducts().length }}
       {{ filteredProducts().length === 1 ? 'producto' : 'productos' }}
       @if (searchQuery() || selectedCategory()) { encontrados }
@@ -68,7 +71,7 @@
     </div>
   } @else if (filteredProducts().length === 0) {
     <div class="lib-product-grid__empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="lib-product-grid__empty-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="lib-product-grid__empty-icon" aria-hidden="true">
         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
       </svg>
       <p>{{ emptyMessage() }}</p>

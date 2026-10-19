@@ -84,13 +84,8 @@ test.describe('Product Listing Page', () => {
       { timeout: 5000 }
     );
 
-    // Additional wait to ensure DOM is fully updated
-    await page.waitForTimeout(500);
-
-    // Verify no "Out of Stock" badges are visible
-    const outOfStockBadges = page.locator('text="Out of Stock"');
-    const count = await outOfStockBadges.count();
-    expect(count).toBe(0);
+    // Aserción auto-reintentable: espera a que no quede ningún badge de agotado
+    await expect(page.locator('text="Out of Stock"')).toHaveCount(0);
   });
 
   test('should handle pagination', async ({ page }) => {
@@ -129,13 +124,11 @@ test.describe('Product Listing Page', () => {
     // Get the count from the text
     const text = await resultsInfo.textContent();
     const match = text?.match(/Showing (\d+) of (\d+)/);
+    expect(match).toBeTruthy();
 
-    if (!match) {
-      return;
-    }
-
-    const showing = parseInt(match[1]);
-    const total = parseInt(match[2]);
+    const m = match as RegExpMatchArray;
+    const showing = parseInt(m[1]);
+    const total = parseInt(m[2]);
 
     // Verify we're showing reasonable numbers
     expect(showing).toBeGreaterThan(0);

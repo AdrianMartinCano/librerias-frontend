@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, input, signal, computed } from '@angular/core';
-import { Column } from '@org/models';
+import { Component, ChangeDetectionStrategy, input, signal, computed, inject } from '@angular/core';
+import { Column, FormatService } from '@org/models';
 
 @Component({
   selector: 'lib-table',
@@ -57,12 +57,14 @@ export class TableComponent {
     return String(this.getCellValue(row, key) ?? '');
   }
 
+  private readonly fmt = inject(FormatService);
+
   formatValue(value: unknown, col: Column, row: Record<string, unknown>): string {
     if (col.format) return col.format(value, row);
     if (value == null || value === '') return '—';
     switch (col.type) {
-      case 'currency': return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(Number(value));
-      case 'date':     return new Date(value as string).toLocaleDateString('es-ES');
+      case 'currency': return this.fmt.money(Number(value));
+      case 'date':     return this.fmt.date(value as string);
       case 'boolean':  return value ? 'Sí' : 'No';
       default:         return String(value);
     }

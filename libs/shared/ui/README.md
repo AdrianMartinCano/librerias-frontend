@@ -2,6 +2,11 @@
 
 Componentes de interfaz reutilizables para Angular: tabla, navbar, footer, botón, card, modal, loader, skeleton y toasts. Incluye además ThemeService (modo claro/oscuro) e I18nService (idioma activo). Mobile-first y temable con variables CSS.
 
+> **Formato e idioma:** las columnas `currency`/`date` de la tabla se formatean con `Intl`
+> nativo (sin `registerLocaleData`). Por defecto euros en formato español; **configurable**
+> —otras monedas, conversión por tasas y selector de moneda en el propio `lib-navbar`— con
+> `provideLibFormat`. Ver [README raíz → Formato e idioma](../../../README.md#formato-e-idioma).
+
 ---
 
 ## Instalación

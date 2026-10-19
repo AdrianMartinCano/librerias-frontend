@@ -87,7 +87,7 @@ export class HeroFormComponent implements OnInit {
   form!: FormGroup;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private fb: FormBuilder) {}
+  private readonly fb = inject(FormBuilder);
 
   ngOnInit(): void {
     const d = this.initialData();

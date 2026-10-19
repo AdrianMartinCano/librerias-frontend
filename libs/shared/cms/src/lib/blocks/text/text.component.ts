@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, ViewEncapsulation, input, inject, computed } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, ViewEncapsulation, input, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { TextData } from '@org/models';
 

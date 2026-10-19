@@ -1,6 +1,6 @@
-﻿import { Component, ChangeDetectionStrategy, ViewEncapsulation, input, computed } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, ViewEncapsulation, input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { PricingData } from '@org/models';
+import { PricingData, FormatService } from '@org/models';
 
 @Component({
   selector: 'lib-cms-pricing',
@@ -50,9 +50,11 @@ import { PricingData } from '@org/models';
 export class PricingComponent {
   readonly data = input.required<PricingData>();
 
+  private readonly fmt = inject(FormatService);
+
   formatPrice(price: number | string): string {
     if (typeof price === 'string') return price;
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(price);
+    return this.fmt.money(price, { maximumFractionDigits: 0 });
   }
 }
 

@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Provider, InjectionToken, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Observable } from 'rxjs';
 
 export interface NewsletterConfig {
@@ -74,10 +75,18 @@ const DEFAULT_CONFIG: Required<NewsletterConfig> = {
   popupDismissTtlDays: 30,
 };
 
+export const NEWSLETTER_CONFIG = new InjectionToken<NewsletterConfig>('NEWSLETTER_CONFIG');
+
+/** Configura la newsletter (API, endpoint, popup) por DI. Alternativa a `NewsletterService.configure()`. */
+export function provideNewsletter(config: NewsletterConfig): Provider {
+  return { provide: NEWSLETTER_CONFIG, useValue: config };
+}
+
 @Injectable({ providedIn: 'root' })
 export class NewsletterService {
   private readonly http = inject(HttpClient);
-  private config: Required<NewsletterConfig> = { ...DEFAULT_CONFIG };
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private config: Required<NewsletterConfig> = { ...DEFAULT_CONFIG, ...(inject(NEWSLETTER_CONFIG, { optional: true }) ?? {}) };
 
   /** Configura el dominio de la API propia y otras opciones. Llamar una vez al arrancar la app. */
   configure(config: NewsletterConfig): void {
@@ -94,6 +103,7 @@ export class NewsletterService {
 
   /** true si el usuario cerró el popup hace menos de `popupDismissTtlDays` días. */
   isPopupDismissed(): boolean {
+    if (!this.isBrowser) return true; // en SSR no mostramos el popup (no hay interacción)
     try {
       const dismissedAt = Number(localStorage.getItem(this.config.popupDismissKey));
       if (!dismissedAt) return false;
@@ -107,10 +117,11 @@ export class NewsletterService {
 
   /** Marca el popup como descartado durante `popupDismissTtlDays` días. */
   dismissPopup(): void {
+    if (!this.isBrowser) return;
     try {
       localStorage.setItem(this.config.popupDismissKey, String(Date.now()));
     } catch {
-      // localStorage no disponible (SSR, modo privado, etc.)
+      // localStorage no disponible (modo privado, etc.)
     }
   }
 

@@ -12,6 +12,7 @@ export * from './lib/block-forms/testimonials-form/testimonials-form.component';
 export * from './lib/block-forms/pricing-form/pricing-form.component';
 export * from './lib/block-forms/counters-form/counters-form.component';
 export * from './lib/block-forms/trust-badges-form/trust-badges-form.component';
+export * from './lib/block-forms/calendar-form/calendar-form.component';
 export * from './lib/block-editor/block-editor.component';
 export * from './lib/cms-page-builder/cms-page-builder.component';
 export * from './lib/cms-pages-manager/cms-pages-manager.component';

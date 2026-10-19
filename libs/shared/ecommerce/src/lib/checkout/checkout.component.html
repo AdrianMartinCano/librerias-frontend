@@ -2,20 +2,21 @@
 
   <!-- Indicador de pasos -->
   @if (step() !== 'success') {
-    <div class="lib-checkout__steps">
+    <ol class="lib-checkout__steps" aria-label="Progreso del pedido">
       @for (s of stepLabels; track s.id) {
-        <div
+        <li
           class="lib-checkout__step"
           [class.lib-checkout__step--active]="step() === s.id"
           [class.lib-checkout__step--done]="isStepDone(s.id)"
+          [attr.aria-current]="step() === s.id ? 'step' : null"
         >
-          <span class="lib-checkout__step-dot">
+          <span class="lib-checkout__step-dot" aria-hidden="true">
             @if (isStepDone(s.id)) { ✓ } @else { {{ s.num }} }
           </span>
           <span class="lib-checkout__step-label">{{ s.label }}</span>
-        </div>
+        </li>
       }
-    </div>
+    </ol>
   }
 
   <!-- Paso 1: Carrito -->
@@ -54,7 +55,7 @@
   @if (step() === 'payment') {
     <div class="lib-checkout__section">
       <h2 class="lib-checkout__title">Método de pago</h2>
-      <div class="lib-checkout__payment-options">
+      <div class="lib-checkout__payment-options" role="radiogroup" aria-label="Método de pago">
         @for (opt of paymentOptions; track opt.value) {
           <label
             class="lib-checkout__payment-opt"

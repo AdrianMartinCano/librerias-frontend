@@ -202,6 +202,15 @@
 .lib-login__social-label { flex: 1; text-align: center; }
 
 /* ── Pie ── */
+/* ── Hueco proyectado (login-extra) ── */
+
+/* Solo separa si de verdad hay algo proyectado: un div vacío no debe dejar un hueco en la
+   tarjeta de quien no usa el slot. Se hace con :has y no con :empty porque :empty se rompe
+   en cuanto el template deja un espacio en blanco dentro del div. */
+.lib-login__extra:has(> *) {
+  margin-top: var(--space-4, 1rem);
+}
+
 .lib-login__footer {
   text-align: center;
   margin-top: var(--space-6, 1.5rem);
@@ -225,4 +234,65 @@
 /* ── Responsive ── */
 @media (max-width: 479px) {
   .lib-login__card { padding: var(--space-6, 1.5rem); }
+}
+
+/*
+  La casilla extra del registro (ver consentLabel).
+  Alineada arriba y no al centro porque el texto puede ocupar dos líneas —son textos de
+  consentimiento, no etiquetas de una palabra— y con align-items:center la casilla se
+  quedaría flotando a media altura del párrafo.
+*/
+.lib-login__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0.2rem 0 1rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.lib-login__consent input {
+  margin-top: 0.18rem;
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+/* El campo de contraseña con su ojo dentro. */
+.lib-login__password {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lib-login__password .lib-input {
+  /* Sitio para el ojo, que si no se solapa con el texto de contraseñas largas. */
+  padding-right: 2.6rem;
+  width: 100%;
+}
+
+.lib-login__ojo {
+  position: absolute;
+  right: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-text-muted, #6b7280);
+  cursor: pointer;
+}
+
+.lib-login__ojo:hover {
+  color: var(--color-text, #1f2937);
+}
+
+.lib-login__ojo:focus-visible {
+  outline: 2px solid var(--color-accent, #2563eb);
+  outline-offset: 1px;
 }

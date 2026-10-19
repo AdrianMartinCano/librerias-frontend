@@ -44,7 +44,7 @@ const CATEGORIES: CategoryDef[] = [
           <span class="ck-settings__label">Necesarias</span>
           <span class="ck-settings__desc">Imprescindibles para el funcionamiento del sitio. No se pueden desactivar.</span>
         </div>
-        <div class="ck-toggle ck-toggle--on ck-toggle--disabled" aria-checked="true" aria-label="Necesarias — siempre activas">
+        <div class="ck-toggle ck-toggle--on ck-toggle--disabled" role="switch" aria-checked="true" aria-disabled="true" aria-label="Necesarias — siempre activas">
           <span class="ck-toggle__knob"></span>
         </div>
       </div>
@@ -105,6 +105,7 @@ const CATEGORIES: CategoryDef[] = [
       padding: 0;
     }
     .ck-toggle--on { background: var(--color-accent); }
+    .ck-toggle:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
     .ck-toggle--disabled { cursor: default; opacity: .6; }
     .ck-toggle__knob {
       position: absolute;
@@ -128,6 +129,7 @@ const CATEGORIES: CategoryDef[] = [
       white-space: nowrap;
     }
     .ck-btn:hover { opacity: .85; }
+    .ck-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
     .ck-btn--primary { background: var(--color-accent); color: #fff; }
     .ck-btn--secondary { background: var(--color-surface-alt, #f0f0f0); color: var(--color-text); border: 1px solid var(--color-border); }
     .ck-btn--ghost { background: transparent; color: var(--color-text-muted); text-decoration: underline; padding-left: 0; margin-right: auto; }

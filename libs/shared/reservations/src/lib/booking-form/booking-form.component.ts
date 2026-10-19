@@ -1,12 +1,12 @@
-import { Component, ChangeDetectionStrategy, input, output, inject, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, inject, computed, effect, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { BookingService as Service, TimeSlot, BookingRequest, BookingStep } from '@org/models';
+import { BookingService as Service, TimeSlot, BookingRequest, BookingStep, Staff, StaffChoice, FormatService } from '@org/models';
 import { BookingCalendarComponent } from '../booking-calendar/booking-calendar.component';
 import { BookingSlotsComponent }    from '../booking-slots/booking-slots.component';
 import { BookingStateService }      from '../booking.service';
 
 const STEP_LABELS: Record<BookingStep, string> = {
-  service: 'Servicio', date: 'Fecha', time: 'Hora', form: 'Datos', success: '',
+  service: 'Servicio', staff: 'Profesional', date: 'Fecha', time: 'Hora', form: 'Datos', success: '',
 };
 
 @Component({
@@ -20,7 +20,7 @@ const STEP_LABELS: Record<BookingStep, string> = {
       <!-- Indicador de pasos -->
       @if (state.step() !== 'success') {
         <div class="lib-booking__steps">
-          @for (s of stepList; track s.id) {
+          @for (s of stepList(); track s.id) {
             <div class="lib-booking__step"
               [class.lib-booking__step--active]="state.step() === s.id"
               [class.lib-booking__step--done]="isStepDone(s.id)">
@@ -64,6 +64,54 @@ const STEP_LABELS: Record<BookingStep, string> = {
             }
           </div>
           <div class="lib-booking__actions">
+            <button type="button" class="lib-booking__btn-primary"
+              [disabled]="!state.canGoNext()" (click)="state.nextStep()">
+              Elegir fecha →
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Paso: Selección de profesional (solo si hay 2+) -->
+      @if (state.step() === 'staff') {
+        <div class="lib-booking__section">
+          <h2 class="lib-booking__title">¿Con quién?</h2>
+          <p class="lib-booking__subtitle">Servicio: <strong>{{ state.selectedService()?.name }}</strong></p>
+          <div class="lib-booking__services">
+            <button
+              type="button"
+              class="lib-booking__service-card"
+              [class.lib-booking__service-card--selected]="state.selectedStaff() === 'any'"
+              (click)="selectStaff('any')"
+            >
+              <div class="lib-booking__service-icon" style="background:var(--color-accent)">✓</div>
+              <div class="lib-booking__service-info">
+                <p class="lib-booking__service-name">Cualquiera disponible</p>
+                <p class="lib-booking__service-desc">Te asignamos el primer profesional libre.</p>
+              </div>
+            </button>
+            @for (p of profesionales(); track p.id) {
+              <button
+                type="button"
+                class="lib-booking__service-card"
+                [class.lib-booking__service-card--selected]="isStaffSelected(p)"
+                (click)="selectStaff(p)"
+              >
+                @if (p.imageUrl) {
+                  <img [src]="p.imageUrl" [alt]="p.name" class="lib-booking__service-img" />
+                } @else {
+                  <div class="lib-booking__service-icon" [style.background]="p.color || 'var(--color-accent)'">
+                    {{ p.name[0] }}
+                  </div>
+                }
+                <div class="lib-booking__service-info">
+                  <p class="lib-booking__service-name">{{ p.name }}</p>
+                </div>
+              </button>
+            }
+          </div>
+          <div class="lib-booking__actions">
+            <button type="button" class="lib-booking__btn-secondary" (click)="state.prevStep()">← Volver</button>
             <button type="button" class="lib-booking__btn-primary"
               [disabled]="!state.canGoNext()" (click)="state.nextStep()">
               Elegir fecha →
@@ -326,6 +374,8 @@ const STEP_LABELS: Record<BookingStep, string> = {
 })
 export class BookingFormComponent implements OnInit {
   readonly servicios      = input.required<Service[]>();
+  /** Profesionales disponibles. Con 2+ aparece el paso "¿con quién?"; con 0/1 se omite. */
+  readonly profesionales  = input<Staff[]>([]);
   readonly disponibilidad = input<string[]>([]);
   readonly slots          = input<TimeSlot[]>([]);
   readonly cargando       = input(false);
@@ -333,16 +383,19 @@ export class BookingFormComponent implements OnInit {
 
   readonly reservaConfirmada    = output<BookingRequest>();
   readonly servicioSeleccionado = output<Service>();
+  /** Profesional elegido (o 'any'). El host recarga disponibilidad con/sin staffId. */
+  readonly profesionalSeleccionado = output<StaffChoice>();
   readonly fechaSeleccionada    = output<string>();
 
   readonly state = inject(BookingStateService);
 
-  readonly stepList = [
-    { id: 'service' as BookingStep, num: 1, label: STEP_LABELS.service },
-    { id: 'date'    as BookingStep, num: 2, label: STEP_LABELS.date },
-    { id: 'time'    as BookingStep, num: 3, label: STEP_LABELS.time },
-    { id: 'form'    as BookingStep, num: 4, label: STEP_LABELS.form },
-  ];
+  /** Pasos visibles: incluye "profesional" solo si hay 2+. */
+  readonly stepList = computed(() => {
+    const ids: BookingStep[] = this.profesionales().length > 1
+      ? ['service', 'staff', 'date', 'time', 'form']
+      : ['service', 'date', 'time', 'form'];
+    return ids.map((id, i) => ({ id, num: i + 1, label: STEP_LABELS[id] }));
+  });
 
   contactForm = inject(FormBuilder).group({
     name:  ['', Validators.required],
@@ -351,16 +404,31 @@ export class BookingFormComponent implements OnInit {
     notes: [''],
   });
 
+  constructor() {
+    // Habilita/oculta el paso de profesional según el nº de trabajadores.
+    effect(() => this.state.staffStepEnabled.set(this.profesionales().length > 1));
+  }
+
   ngOnInit(): void { this.state.reset(); }
 
   isStepDone(id: BookingStep): boolean {
-    const order: BookingStep[] = ['service', 'date', 'time', 'form', 'success'];
+    const order = this.stepList().map((s) => s.id);
     return order.indexOf(this.state.step()) > order.indexOf(id);
   }
 
   selectService(s: Service): void {
     this.state.selectService(s);
     this.servicioSeleccionado.emit(s);
+  }
+
+  selectStaff(choice: StaffChoice): void {
+    this.state.selectStaff(choice);
+    this.profesionalSeleccionado.emit(choice);
+  }
+
+  isStaffSelected(p: Staff): boolean {
+    const sel = this.state.selectedStaff();
+    return sel !== null && sel !== 'any' && sel.id === p.id;
   }
 
   selectDate(date: string): void {
@@ -371,16 +439,24 @@ export class BookingFormComponent implements OnInit {
   onSubmit(): void {
     if (this.contactForm.invalid) { this.contactForm.markAllAsTouched(); return; }
     const v = this.contactForm.getRawValue();
-    const s = this.state.selectedService()!;
+    const s = this.state.selectedService();
+    const date = this.state.selectedDate();
+    const slot = this.state.selectedSlot();
+    if (!s || !date || !slot) return;
+    const staff = this.state.selectedStaff();
+    const chosen = staff && staff !== 'any' ? staff : null;
     const req: BookingRequest = {
       serviceId:   s.id,
       serviceName: s.name,
-      date:        this.state.selectedDate()!,
-      time:        this.state.selectedSlot()!.time,
-      clientName:  v.name!,
-      clientEmail: v.email!,
-      clientPhone: v.phone!,
+      date,
+      time:        slot.time,
+      clientName:  v.name ?? '',
+      clientEmail: v.email ?? '',
+      clientPhone: v.phone ?? '',
       notes:       v.notes || undefined,
+      staffId:     chosen?.id,
+      staffName:   chosen?.name,
+      staffColor:  chosen?.color,
     };
     this.reservaConfirmada.emit(req);
     this.state.nextStep();
@@ -393,11 +469,13 @@ export class BookingFormComponent implements OnInit {
     return !!(c?.invalid && c?.touched);
   }
 
+  private readonly fmt = inject(FormatService);
+
   formatPrice(p: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(p);
+    return this.fmt.money(p);
   }
 
   formatDate(iso: string): string {
-    return new Date(iso + 'T00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    return this.fmt.date(iso + 'T00:00', { weekday: 'long', day: 'numeric', month: 'long' });
   }
 }

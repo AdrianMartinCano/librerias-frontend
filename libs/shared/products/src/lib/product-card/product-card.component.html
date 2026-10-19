@@ -5,6 +5,7 @@
   [class.lib-product-card--linkable]="!!routerLink()"
   (click)="onCardClick()"
   (keyup.enter)="onCardClick()"
+  (keyup.space)="onCardClick()"
   [attr.tabindex]="routerLink() ? null : 0"
   [attr.role]="routerLink() ? null : 'button'"
   [attr.aria-label]="routerLink() ? null : product().name"
@@ -51,6 +52,7 @@
               class="lib-product-card__star"
               [class.lib-product-card__star--filled]="star.filled"
               [class.lib-product-card__star--half]="star.half"
+              aria-hidden="true"
             >★</span>
           }
         </div>

@@ -132,4 +132,31 @@ export class AnalyticsLoader {
 }
 ```
 
-El consentimiento se persiste en `localStorage` (clave `pimon_cookie_consent`), así que la decisión se recuerda entre visitas.
+El consentimiento se persiste en `localStorage` (clave `pimon_cookie_consent`), así que la decisión se recuerda entre visitas. El servicio es **SSR-safe**: en servidor/prerender no toca `localStorage` (no decide nada hasta hidratar en el navegador).
+
+---
+
+## Configuración (`provideCookieConsent`)
+
+Opcional. Controla cuándo se vuelve a pedir el consentimiento — recomendado por el RGPD para no
+mantener un consentimiento "para siempre". Todo tiene valores por defecto sensatos.
+
+```typescript
+import { provideCookieConsent } from '@adrianmartincano/ng-cookies';
+
+bootstrapApplication(App, {
+  providers: [
+    provideCookieConsent({
+      version: 2,            // súbela al cambiar las categorías/política → re-pregunta a todos
+      expiresAfterDays: 180, // vuelve a preguntar pasados N días (0 = nunca caduca)
+      // storageKey: 'pimon_cookie_consent',
+    }),
+  ],
+});
+```
+
+| Opción | Tipo | Por defecto | Descripción |
+|---|---|---|---|
+| `version` | `number` | `1` | Versión de la política. Si la subes, los consentimientos anteriores se invalidan y el banner vuelve a salir. |
+| `expiresAfterDays` | `number` | `180` | Días tras los que se vuelve a pedir consentimiento. `0` = nunca caduca. |
+| `storageKey` | `string` | `'pimon_cookie_consent'` | Clave de `localStorage`. |

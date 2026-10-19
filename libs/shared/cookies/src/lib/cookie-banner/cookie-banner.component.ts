@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, inject, signal, output, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewEncapsulation, inject, signal, input } from '@angular/core';
 import { CookieService } from '../cookie.service/cookie.service';
 import { CookieSettingsComponent } from '../cookie-settings/cookie-settings.component';
 
@@ -10,15 +10,15 @@ import { CookieSettingsComponent } from '../cookie-settings/cookie-settings.comp
   encapsulation: ViewEncapsulation.None,
   template: `
     @if (!cookieService.decided()) {
-      <div class="ck-banner" role="dialog" aria-label="Aviso de cookies" aria-modal="true">
+      <div class="ck-banner" role="dialog" aria-labelledby="ck-banner-title" aria-describedby="ck-banner-desc">
         @if (!showSettings()) {
           <div class="ck-banner__content">
             <div class="ck-banner__text">
-              <p class="ck-banner__title">Usamos cookies</p>
-              <p class="ck-banner__desc">
+              <p class="ck-banner__title" id="ck-banner-title">Usamos cookies</p>
+              <p class="ck-banner__desc" id="ck-banner-desc">
                 Usamos cookies propias y de terceros para analizar el uso del sitio y mostrarte
                 contenido relevante. Puedes aceptarlas todas, rechazarlas o personalizarlas.
-                <a class="ck-banner__link" [href]="cookiePolicyPath">Política de cookies</a>
+                <a class="ck-banner__link" [href]="cookiePolicyPath()">Política de cookies</a>
               </p>
             </div>
             <div class="ck-banner__actions">
@@ -72,6 +72,7 @@ import { CookieSettingsComponent } from '../cookie-settings/cookie-settings.comp
       white-space: nowrap;
     }
     .ck-btn:hover { opacity: .85; }
+    .ck-btn:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
     .ck-btn--primary { background: var(--color-accent); color: #fff; }
     .ck-btn--secondary { background: var(--color-surface-alt, #f0f0f0); color: var(--color-text); border: 1px solid var(--color-border); }
     .ck-btn--ghost { background: transparent; color: var(--color-text-muted); text-decoration: underline; padding-left: 0; }

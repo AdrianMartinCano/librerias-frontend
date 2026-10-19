@@ -10,8 +10,10 @@
   (click)="fileInput.click()"
   role="button"
   [attr.aria-label]="label()"
-  tabindex="0"
+  [attr.aria-disabled]="disabled() || null"
+  [attr.tabindex]="disabled() ? -1 : 0"
   (keyup.enter)="fileInput.click()"
+  (keyup.space)="fileInput.click()"
 >
   <input
     #fileInput
@@ -42,6 +44,9 @@
   }
 
   @if (files().length > 0 && showPreview()) {
+    <!-- Contenedor no interactivo: el click solo evita que abrir/gestionar las previews
+         dispare el selector de archivos del dropzone padre. No es un control. -->
+    <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -->
     <div class="lib-upload__previews" (click)="$event.stopPropagation()">
       @for (f of files(); track f.name) {
         <div class="lib-upload__preview-item">
@@ -89,7 +94,13 @@
 <!-- Barra de progreso — clases globales del theme -->
 @if (progress() !== null) {
   <div class="lib-upload__progress-wrapper">
-    <div class="lib-progress">
+    <div
+      class="lib-progress"
+      role="progressbar"
+      [attr.aria-valuenow]="progress()"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
       <div class="lib-progress-bar" [style.width.%]="progress()"></div>
     </div>
     <p class="lib-upload__progress-text">{{ progress() }}%</p>
@@ -104,7 +115,11 @@
   </div>
 }
 
-<!-- Errores — clase global del theme -->
-@for (err of errors(); track err.file) {
-  <p class="lib-field-error" style="margin-top: var(--space-2)">{{ err.message }}</p>
+<!-- Errores — clase global del theme; role=alert para que los anuncien los lectores de pantalla -->
+@if (errors().length > 0) {
+  <div role="alert">
+    @for (err of errors(); track err.file) {
+      <p class="lib-field-error" style="margin-top: var(--space-2)">{{ err.message }}</p>
+    }
+  </div>
 }

@@ -1,6 +1,12 @@
 # @adrianmartincano/ng-theme
 
-Design system CSS puro (sin JavaScript): variables de color, tipografía y espaciado, modo oscuro, grid, animaciones, spinner, progress bar y clases utilitarias. Es la base visual del resto de librerías @adrianmartincano/ng-*.
+Design system CSS puro (sin JavaScript): variables de color, tipografía y espaciado, modo oscuro, grid, animaciones, spinner, progress bar y clases utilitarias.
+
+> **Es la base del sistema.** Las 12 librerías de componentes `@adrianmartincano/ng-*` la
+> declaran como `peerDependency`: todas heredan sus tokens, su dark mode y su accesibilidad
+> de serie (foco visible, `prefers-reduced-motion`, `color-scheme`). Instálala **una vez** e
+> impórtala **una vez** en el `styles.css` de tu app — el resto de librerías solo necesitan
+> que estos tokens existan en `:root`. Ver el [mapa de capas](../../../README.md#arquitectura--capas-de-dependencia).
 
 ---
 
@@ -138,6 +144,24 @@ Sobreescribe solo las variables que necesites. Útil cuando el diseñador tiene 
 | `--color-danger` | `#dc3545` | Errores, botón danger, boolean false |
 | `--color-info` | `#17a2b8` | Información |
 
+#### Calendario de reservas (`lib-booking-calendar` / `lib-public-calendar`)
+Por defecto derivan del acento/bordes, así que el calendario ya respeta tu marca. Redefínelas en tu
+`:root` (o en un contenedor concreto) para re-estilarlo **sin tocar el componente** — p. ej. días
+circulares solo en el calendario público:
+
+```css
+.mi-calendario-publico { --cal-day-radius: 999px; }
+```
+
+| Variable | Default | Qué afecta |
+|---|---|---|
+| `--cal-day-radius` | `--radius-md` | Redondeo de cada día (p. ej. `999px` = círculos) |
+| `--cal-day-hover-bg` / `--cal-day-hover-fg` | tinte de acento / acento | Día disponible al pasar el ratón |
+| `--cal-selected-bg` / `--cal-selected-fg` | acento / blanco | Día seleccionado |
+| `--cal-today-ring` | acento 45% | Anillo del día de hoy |
+| `--cal-busy-bg` / `--cal-busy-fg` | tinte de acento / acento-hover | Día ocupado (calendario público) |
+| `--cal-nav-hover-bg` | acento 10% | Hover de las flechas de mes |
+
 #### Tipografía
 | Variable | Valor |
 |---|---|
@@ -172,11 +196,20 @@ Sobreescribe solo las variables que necesites. Útil cuando el diseñador tiene 
 | `--radius-md` | `0.5rem` |
 | `--radius-lg` | `0.75rem` |
 | `--radius-full` | `9999px` |
-| `--shadow-sm` | sombra sutil |
-| `--shadow-md` | sombra media |
-| `--shadow-lg` | sombra pronunciada |
-| `--transition-fast` | `120ms ease` |
-| `--transition-base` | `200ms ease` |
+| `--shadow-sm` | sombra sutil (dos capas) |
+| `--shadow-md` | sombra media (dos capas) |
+| `--shadow-lg` | sombra pronunciada (dos capas) |
+| `--shadow-color` | `15, 23, 42` — RGB del tinte de sombra (`0,0,0` en oscuro) |
+| `--ease-out` | `cubic-bezier(0.22, 1, 0.36, 1)` — curva de salida expresiva |
+| `--ease-in-out` | `cubic-bezier(0.65, 0, 0.35, 1)` |
+| `--transition-fast` | `120ms var(--ease-out)` |
+| `--transition-base` | `200ms var(--ease-out)` |
+| `--focus-ring` | anillo de foco accesible reutilizable (`box-shadow`) |
+
+> **Accesibilidad de serie:** el theme aplica `:focus-visible` con `--focus-ring`
+> a cualquier control enfocado por teclado, respeta `prefers-reduced-motion`
+> (reduce animaciones y transiciones) y declara `color-scheme` para que los
+> controles nativos y scrollbars se adapten al modo claro/oscuro.
 
 ---
 
@@ -279,6 +312,23 @@ Clases globales reutilizables en cualquier formulario propio (los componentes `l
 <input class="lib-radio"    type="radio" />
 <input class="lib-checkbox" type="checkbox" />
 ```
+
+---
+
+### Contenido markdown (`.lib-md`)
+
+Da estilo al HTML que genera `@adrianmartincano/ng-markdown` (mensajes del foro,
+comentarios del blog): párrafos, negrita, cursiva, subrayado, tachado, código,
+enlaces, citas y listas.
+
+```html
+<div class="lib-md" [innerHTML]="post.body | libMarkdown"></div>
+```
+
+Vive aquí y no en la lib de markdown **a propósito**: ese HTML se pinta con
+`[innerHTML]` y el contenido inyectado así no recibe los atributos de encapsulación de
+Angular, por lo que los `styles` de un componente nunca le llegarían. Si una app usa el
+foro o el blog y el texto se ve sin formato, casi siempre es que falta este CSS.
 
 ---
 

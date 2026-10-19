@@ -302,3 +302,35 @@
 @media (min-width: 1024px) {
   .lib-nav__container { padding-inline: var(--space-8, 2rem); }
 }
+
+/* Icono opcional de un elemento del menú.
+ *
+ * `icon` es el atributo `d` de un path SVG, NO html ni una URL. Es a propósito:
+ *
+ *   - Un string con HTML habría que pintarlo con innerHTML, y eso es una vía de XSS en
+ *     cuanto los elementos del menú vengan de una base de datos o de un CMS.
+ *   - Una URL a un fichero serían una petición por icono y un parpadeo al cargar.
+ *
+ * Con el path, la librería controla el <svg> y solo interpola un atributo: no puede
+ * inyectarse nada. Y `currentColor` hace que el icono siga al enlace —apagado, activo,
+ * al pasar por encima— sin una sola regla de color extra. */
+.lib-nav__link-icon {
+  width: 1.05em;
+  height: 1.05em;
+  /* Que no se estruje cuando la barra se queda sin sitio: antes se deforma el dibujo
+     que se parte el texto. */
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* El enlace pasa a flex solo si hay icono: sin él, se deja exactamente como estaba para
+   no mover ni un píxel en las webs que no los usan. */
+.lib-nav__link:has(.lib-nav__link-icon) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}

@@ -1,9 +1,16 @@
 import {
   Component, ChangeDetectionStrategy, input, output, inject, effect, PLATFORM_ID,
+  viewChild, ElementRef,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+
+let modalUid = 0;
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), ' +
+  'textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 @Component({
   selector: 'lib-modal',
@@ -17,16 +24,20 @@ export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
         [attr.aria-hidden]="true"
       ></div>
       <div
+        #dialog
         class="lib-modal lib-modal--{{ size() }}"
         role="dialog"
+        tabindex="-1"
         [attr.aria-modal]="true"
-        [attr.aria-label]="title() || 'Diálogo'"
+        [attr.aria-labelledby]="title() ? titleId : null"
+        [attr.aria-label]="title() ? null : 'Diálogo'"
+        (keydown)="onKeydown($event)"
       >
         <!-- Header -->
         <div class="lib-modal__header">
           <ng-content select="[slot=header]" />
           @if (title()) {
-            <h2 class="lib-modal__title">{{ title() }}</h2>
+            <h2 class="lib-modal__title" [id]="titleId">{{ title() }}</h2>
           }
           @if (closable()) {
             <button type="button" class="lib-modal__close" (click)="closed.emit()" aria-label="Cerrar">
@@ -70,6 +81,8 @@ export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
       animation: lib-scale-in .2s ease both;
       width: calc(100% - var(--space-8, 2rem));
     }
+
+    .lib-modal:focus { outline: none; box-shadow: var(--shadow-xl, 0 20px 25px rgba(0,0,0,.15)); }
 
     .lib-modal--sm  { max-width: 400px; }
     .lib-modal--md  { max-width: 560px; }
@@ -143,16 +156,70 @@ export class ModalComponent {
 
   readonly closed = output<void>();
 
+  protected readonly titleId = `lib-modal-title-${++modalUid}`;
+
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly dialog = viewChild<ElementRef<HTMLElement>>('dialog');
+  private lastFocused: HTMLElement | null = null;
 
   constructor() {
     effect(() => {
       if (!isPlatformBrowser(this.platformId)) return;
-      document.body.style.overflow = this.open() ? 'hidden' : '';
+      const isOpen = this.open();
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+
+      if (isOpen) {
+        // Recuerda quién tenía el foco para devolvérselo al cerrar
+        this.lastFocused = document.activeElement as HTMLElement | null;
+        this.focusInitial();
+      } else if (this.lastFocused) {
+        this.lastFocused.focus?.();
+        this.lastFocused = null;
+      }
     });
   }
 
   onBackdropClick(): void {
     if (this.closable()) this.closed.emit();
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.closable()) {
+      event.stopPropagation();
+      this.closed.emit();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+
+    // Focus trap: el tabulado no escapa del diálogo
+    const items = this.focusables();
+    if (items.length === 0) {
+      event.preventDefault();
+      this.dialog()?.nativeElement.focus();
+      return;
+    }
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  private focusInitial(): void {
+    // Enfocamos el propio diálogo: el lector de pantalla anuncia el título
+    // (aria-labelledby) y el usuario decide a dónde tabular desde ahí.
+    this.dialog()?.nativeElement.focus();
+  }
+
+  private focusables(): HTMLElement[] {
+    const root = this.dialog()?.nativeElement;
+    if (!root) return [];
+    return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE))
+      .filter((el) => el.offsetParent !== null || el === document.activeElement);
   }
 }

@@ -40,22 +40,37 @@ export const appConfig: ApplicationConfig = {
 
 ## Configuración — tu propio dominio
 
-Por defecto, las suscripciones se envían a `/api/newsletter/subscribe` en el **mismo dominio** que el frontend (ideal cuando frontend y backend están detrás del mismo proxy). Si tu API vive en otro dominio (p. ej. `api.tudominio.com`), configúralo una vez al arrancar la app:
+Por defecto, las suscripciones se envían a `/api/newsletter/subscribe` en el **mismo dominio** que el frontend (ideal cuando frontend y backend están detrás del mismo proxy). Si tu API vive en otro dominio (p. ej. `api.tudominio.com`), configúralo una vez al arrancar la app.
+
+**Recomendado — por DI con `provideNewsletter`:**
 
 ```typescript
-// app.ts (o app.config.ts)
+// app.config.ts
+import { provideNewsletter } from '@adrianmartincano/ng-newsletter';
+import { environment } from '../environments/environment';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideNewsletter({ apiUrl: environment.apiUrl }), // p. ej. 'https://api.tudominio.com'
+  ],
+};
+```
+
+**Alternativa — en tiempo de ejecución con `configure()`:**
+
+```typescript
 import { inject } from '@angular/core';
 import { NewsletterService } from '@adrianmartincano/ng-newsletter';
-import { environment } from '../environments/environment';
 
 export class App {
   constructor() {
-    inject(NewsletterService).configure({
-      apiUrl: environment.apiUrl, // p. ej. 'https://api.tudominio.com'
-    });
+    inject(NewsletterService).configure({ apiUrl: environment.apiUrl });
   }
 }
 ```
+
+> **SSR-safe:** el servicio no accede a `localStorage` en servidor/prerender; en SSR el popup no se
+> muestra (espera a hidratar en el navegador).
 
 ### `NewsletterConfig`
 
@@ -246,7 +261,7 @@ export class AdminNewsletterPage {}
 
 ## Tipos exportados
 
-`NewsletterConfig`, `NewsletterSubscribeResponse`, `NewsletterFormLayout`, `NewsletterFormStatus`, `NewsletterSubscriberStatus`, `NewsletterSubscriberAdmin`, `NewsletterCampaign`, `NewsletterCampaignTemplate`, `NewsletterCampaignPreview`, `NewsletterPage<T>` (página genérica), `NewsletterApiResponse<T>` (envoltorio `{ success, data, message }`).
+`provideNewsletter` (provider de configuración), `NEWSLETTER_CONFIG` (token), `NewsletterConfig`, `NewsletterSubscribeResponse`, `NewsletterFormLayout`, `NewsletterFormStatus`, `NewsletterSubscriberStatus`, `NewsletterSubscriberAdmin`, `NewsletterCampaign`, `NewsletterCampaignTemplate`, `NewsletterCampaignPreview`, `NewsletterPage<T>` (página genérica), `NewsletterApiResponse<T>` (envoltorio `{ success, data, message }`).
 
 ---
 

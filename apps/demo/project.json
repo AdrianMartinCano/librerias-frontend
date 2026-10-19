@@ -4,15 +4,21 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/demo/src",
-  "tags": ["scope:demo"],
+  "tags": [
+    "scope:demo"
+  ],
   "targets": {
     "build": {
       "executor": "@angular/build:application",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/apps/demo",
         "browser": "apps/demo/src/main.ts",
-        "polyfills": ["zone.js"],
+        "polyfills": [
+          "zone.js"
+        ],
         "tsConfig": "apps/demo/tsconfig.app.json",
         "assets": [
           {
@@ -20,7 +26,9 @@
             "input": "apps/demo/public"
           }
         ],
-        "styles": ["apps/demo/src/styles.css"]
+        "styles": [
+          "apps/demo/src/styles.css"
+        ]
       },
       "configurations": {
         "production": {
@@ -79,5 +87,8 @@
         "spa": true
       }
     }
-  }
+  },
+  "implicitDependencies": [
+    "theme"
+  ]
 }

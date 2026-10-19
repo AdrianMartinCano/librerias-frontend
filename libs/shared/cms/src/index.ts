@@ -11,3 +11,4 @@ export * from './lib/blocks/pricing/pricing.component';
 export * from './lib/blocks/text/text.component';
 export * from './lib/blocks/counters/counters.component';
 export * from './lib/blocks/trust-badges/trust-badges.component';
+export * from './lib/cms-block/cms-blocks.token';

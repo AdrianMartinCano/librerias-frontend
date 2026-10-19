@@ -184,3 +184,11 @@
   .lib-cart__subtotal { display: none; }
   .lib-cart__img { width: 48px; height: 48px; }
 }
+
+/* Lo elegido en la línea: color, complemento, dedicatoria. Va bajo el nombre y apagado,
+   porque es un detalle del artículo y no debe competir con él. */
+.lib-cart__options {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, #666);
+}

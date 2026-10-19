@@ -2,6 +2,11 @@
 
 Flujo de compra completo para Angular: carrito editable (lib-cart), checkout en 5 pasos (lib-checkout) e historial de pedidos (lib-order-history). Se apoya en el CartService de @adrianmartincano/ng-products.
 
+> **Formato e idioma:** los importes y las fechas (carrito, checkout, tarjeta de pedido) se
+> formatean con `Intl` nativo (sin `registerLocaleData`). Por defecto euros en formato español;
+> **configurable** —otras monedas, conversión por tasas y selector en el navbar— con
+> `provideLibFormat`. Ver [README raíz → Formato e idioma](../../../README.md#formato-e-idioma).
+
 ---
 
 ## Instalación
@@ -26,8 +31,8 @@ npm install @adrianmartincano/ng-ecommerce
 | `@angular/common` | `>=21.0.0` |
 | `@angular/core` | `>=21.0.0` |
 | `@adrianmartincano/ng-theme` | `>=0.0.1` |
-| `@adrianmartincano/ng-products` | `>=0.3.7` |
-| `@adrianmartincano/ng-forms` | `>=0.3.7` |
+| `@adrianmartincano/ng-products` | `>=0.0.1` |
+| `@adrianmartincano/ng-forms` | `>=0.0.1` |
 
 ---
 
@@ -42,6 +47,10 @@ npm install @adrianmartincano/ng-ecommerce
 ## Ecommerce (`@adrianmartincano/ng-ecommerce`)
 
 Flujo de compra completo: carrito editable, checkout multi-paso y tarjetas de pedido.
+
+> **Accesible:** el indicador de pasos del checkout es una lista `<ol>` con `aria-current="step"`
+> en el paso activo; los métodos de pago forman un `role="radiogroup"`; el carrito usa botones de
+> cantidad/eliminar con `aria-label`. Importes vía `FormatService` (multi-divisa).
 
 ```typescript
 import { CartSummaryComponent, CheckoutComponent, OrderCardComponent, CheckoutService } from '@adrianmartincano/ng-ecommerce';

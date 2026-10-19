@@ -1,14 +1,15 @@
 {
-  "name": "@adrianmartincano/ng-ecommerce",
-  "version": "0.3.8",
-  "peerDependencies": {
-    "@angular/common": ">=21.0.0",
-    "@angular/core": ">=21.0.0",
-    "@adrianmartincano/ng-theme": ">=0.0.1",
-    "@adrianmartincano/ng-products": ">=0.3.7",
-    "@adrianmartincano/ng-forms": ">=0.3.7"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
-  }
+    "name":  "@adrianmartincano/ng-ecommerce",
+    "version":  "0.5.4",
+    "peerDependencies":  {
+                             "@angular/common":  "\u003e=21.0.0",
+                             "@angular/core":  "\u003e=21.0.0",
+                             "@adrianmartincano/ng-theme":  "\u003e=0.0.1",
+                             "@adrianmartincano/ng-products":  "\u003e=0.0.1",
+                             "@adrianmartincano/ng-forms":  "\u003e=0.0.1",
+                             "@adrianmartincano/ng-models":  "\u003e=0.0.1"
+                         },
+    "publishConfig":  {
+                          "registry":  "https://npm.pkg.github.com"
+                      }
 }

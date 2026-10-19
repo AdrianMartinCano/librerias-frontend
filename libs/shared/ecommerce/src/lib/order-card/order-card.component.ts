@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
-import { Order, OrderStatus } from '@org/models';
+import { Component, ChangeDetectionStrategy, input, output, inject } from '@angular/core';
+import { Order, OrderStatus, FormatService } from '@org/models';
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   pending:    'Pendiente',
@@ -26,11 +26,13 @@ export class OrderCardComponent {
     return STATUS_LABELS[status] ?? status;
   }
 
+  private readonly fmt = inject(FormatService);
+
   formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
+    return this.fmt.money(price);
   }
 
   formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    return this.fmt.date(iso, { day: 'numeric', month: 'long', year: 'numeric' });
   }
 }

@@ -1,13 +1,12 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  DestroyRef,
+  computed,
+  effect,
+  inject,
   input,
   output,
-  inject,
-  OnInit,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -31,7 +30,7 @@ const NATIVE_INPUT_TYPES: FormFieldType[] = [
   templateUrl: './dynamic-form.component.html',
   styleUrl: './dynamic-form.component.css',
 })
-export class DynamicFormComponent implements OnInit {
+export class DynamicFormComponent {
   readonly fields      = input.required<FormField[]>();
   readonly submitLabel = input('Enviar');
   readonly cancelLabel = input('');
@@ -42,23 +41,74 @@ export class DynamicFormComponent implements OnInit {
   readonly cancelled  = output<void>();
   readonly formChange = output<Record<string, unknown>>();
 
-  form!: FormGroup;
+  private readonly fb = inject(FormBuilder);
 
-  private readonly fb         = inject(FormBuilder);
-  private readonly destroyRef = inject(DestroyRef);
+  /** El formulario se reconstruye automáticamente si cambia el input `fields`. */
+  readonly form = computed<FormGroup>(() => this.build(this.fields()));
 
-  ngOnInit(): void {
-    this.buildForm();
+  constructor() {
+    // Re-suscribe a valueChanges cada vez que se reconstruye el form (y limpia la anterior).
+    effect((onCleanup) => {
+      const sub = this.form().valueChanges.subscribe(
+        (value) => this.formChange.emit(value as Record<string, unknown>),
+      );
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
   isNativeInput(type: FormFieldType): boolean {
     return NATIVE_INPUT_TYPES.includes(type);
   }
 
-  private buildForm(): void {
+  /** ids del hint/error para enlazarlos al control con aria-describedby (mejora lectores de pantalla). */
+  describedBy(field: FormField): string | null {
+    if (this.hasError(field.key)) return `${field.key}-error`;
+    if (field.hint) return `${field.key}-hint`;
+    return null;
+  }
+
+  onSubmit(): void {
+    const form = this.form();
+    if (form.invalid) {
+      form.markAllAsTouched();
+      return;
+    }
+    this.submitted.emit(form.getRawValue() as Record<string, unknown>);
+  }
+
+  hasError(key: string): boolean {
+    const ctrl = this.form().get(key);
+    return !!(ctrl?.invalid && ctrl?.touched);
+  }
+
+  getError(field: FormField): string {
+    const ctrl = this.form().get(field.key);
+    if (!ctrl?.errors) return '';
+    const e = ctrl.errors;
+
+    // Mensajes de validadores declarativos y built-in
+    if (e['custom'])    return e['custom'] as string;
+    if (e['required'])  return `${field.label} es obligatorio`;
+    if (e['email'])     return 'El formato de email no es válido';
+    if (e['minlength']) return `Mínimo ${(e['minlength'] as { requiredLength: number }).requiredLength} caracteres`;
+    if (e['maxlength']) return `Máximo ${(e['maxlength'] as { requiredLength: number }).requiredLength} caracteres`;
+    if (e['min'])       return `El valor mínimo es ${(e['min'] as { min: number }).min}`;
+    if (e['max'])       return `El valor máximo es ${(e['max'] as { max: number }).max}`;
+    if (e['pattern'])   return field.patternMessage ?? 'El formato no es válido';
+
+    // Validadores personalizados con { message: '...' } o string directo
+    for (const val of Object.values(e)) {
+      if (typeof val === 'string') return val;
+      if (val && typeof val === 'object' && 'message' in val) return String((val as { message: unknown }).message);
+    }
+
+    return 'Campo no válido';
+  }
+
+  private build(fields: FormField[]): FormGroup {
     const controls: Record<string, unknown> = {};
 
-    for (const field of this.fields()) {
+    for (const field of fields) {
       const validators: ValidatorFn[] = [];
 
       // ── Validadores declarativos (de los props del campo) ──
@@ -88,47 +138,6 @@ export class DynamicFormComponent implements OnInit {
       controls[field.key] = [{ value: defaultValue, disabled: field.disabled ?? false }, validators];
     }
 
-    this.form = this.fb.group(controls);
-
-    this.form.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((val) => this.formChange.emit(val as Record<string, unknown>));
-  }
-
-  onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-    this.submitted.emit(this.form.getRawValue() as Record<string, unknown>);
-  }
-
-  hasError(key: string): boolean {
-    const ctrl = this.form?.get(key);
-    return !!(ctrl?.invalid && ctrl?.touched);
-  }
-
-  getError(field: FormField): string {
-    const ctrl = this.form?.get(field.key);
-    if (!ctrl?.errors) return '';
-    const e = ctrl.errors;
-
-    // Mensajes de validadores declarativos y built-in
-    if (e['custom'])    return e['custom'] as string;
-    if (e['required'])  return `${field.label} es obligatorio`;
-    if (e['email'])     return 'El formato de email no es válido';
-    if (e['minlength']) return `Mínimo ${(e['minlength'] as { requiredLength: number }).requiredLength} caracteres`;
-    if (e['maxlength']) return `Máximo ${(e['maxlength'] as { requiredLength: number }).requiredLength} caracteres`;
-    if (e['min'])       return `El valor mínimo es ${(e['min'] as { min: number }).min}`;
-    if (e['max'])       return `El valor máximo es ${(e['max'] as { max: number }).max}`;
-    if (e['pattern'])   return field.patternMessage ?? 'El formato no es válido';
-
-    // Validadores personalizados con { message: '...' } o string directo
-    for (const val of Object.values(e)) {
-      if (typeof val === 'string') return val;
-      if (val && typeof val === 'object' && 'message' in val) return String((val as { message: unknown }).message);
-    }
-
-    return 'Campo no válido';
+    return this.fb.group(controls);
   }
 }

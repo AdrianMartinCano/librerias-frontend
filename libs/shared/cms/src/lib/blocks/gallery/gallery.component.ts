@@ -22,8 +22,11 @@ import { GalleryData } from '@org/models';
       </div>
 
       @if (current() !== null) {
-        <div class="cms-gallery__lightbox" (click)="close()" role="dialog" aria-modal="true">
-          <img [src]="current()!.src" [alt]="current()!.alt || ''" class="cms-gallery__lightbox-img" (click)="$event.stopPropagation()" />
+        <!-- El teclado (Esc / flechas) se gestiona en @HostListener('document:keydown'); el
+             click en el fondo solo cierra si se pulsa fuera de la imagen (onBackdrop). -->
+        <!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events -->
+        <div class="cms-gallery__lightbox" (click)="onBackdrop($event)" role="dialog" aria-modal="true">
+          <img [src]="current()!.src" [alt]="current()!.alt || ''" class="cms-gallery__lightbox-img" />
           <button class="cms-gallery__lightbox-close" (click)="close()" aria-label="Cerrar">✕</button>
           @if (data().images.length > 1) {
             <button class="cms-gallery__lightbox-prev" (click)="prev($event)" aria-label="Anterior">&#8249;</button>
@@ -44,6 +47,11 @@ export class GalleryComponent {
 
   open(i: number): void { this.idx.set(i); }
   close(): void { this.idx.set(null); }
+
+  /** Cierra solo si el click ocurre en el fondo, no sobre la imagen u otros controles. */
+  onBackdrop(e: MouseEvent): void {
+    if (e.target === e.currentTarget) this.close();
+  }
 
   prev(e?: Event): void {
     e?.stopPropagation();

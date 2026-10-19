@@ -26,7 +26,7 @@ export class App {
         { label: 'Auth',      path: '/demo' },
       ],
     },
-    { label: 'GitHub', path: 'https://github.com/AdrianMartinCano/librerias', external: true },
+    { label: 'GitHub', path: 'https://github.com/AdrianMartinCano/librerias-frontend', external: true },
   ];
 
   languages: Language[] = [
@@ -37,7 +37,7 @@ export class App {
 
   socialLinks: SocialLink[] = [
     { platform: 'instagram', url: 'https://instagram.com' },
-    { platform: 'github',    url: 'https://github.com/AdrianMartinCano/librerias' },
+    { platform: 'github',    url: 'https://github.com/AdrianMartinCano/librerias-frontend' },
     { platform: 'linkedin',  url: 'https://linkedin.com' },
   ];
 

@@ -58,6 +58,10 @@ import { SocialProvider, AuthUser, AuthResponse } from '@adrianmartincano/ng-mod
 
 Un único componente que gestiona login, registro y proveedores sociales.
 
+> **Accesible:** inputs con `aria-invalid`/`aria-required`, errores enlazados con `aria-describedby`
+> y `role="alert"`, y `autocomplete` correcto para gestores de contraseñas (`current-password` en
+> login, `new-password` en registro).
+
 #### Inputs
 
 | Input | Tipo | Default | Descripción |
@@ -83,6 +87,22 @@ Un único componente que gestiona login, registro y proveedores sociales.
 | `registerSuccess` | `AuthResponse` | Registro completado con éxito |
 | `loginError` | `string` | Mensaje de error del servidor |
 | `socialClick` | `SocialProvider` | Clic en un botón social (antes de redirigir) |
+
+#### Slot `login-extra` — meter algo DENTRO de la tarjeta
+
+Lo que se marque con el atributo `login-extra` se pinta dentro de la tarjeta, **entre el
+formulario y el pie** («¿No tienes cuenta?»). Es el sitio de `<lib-google-button>`, que al ser
+un componente aparte se quedaba por fuera:
+
+```html
+<lib-login [showRegister]="true" (loginSuccess)="onLogin($event)">
+  <lib-google-button login-extra (loginSuccess)="onLogin($event)" />
+</lib-login>
+```
+
+Sin nada proyectado la tarjeta queda **exactamente igual** que antes: el hueco no deja
+espacio en blanco. Sirve para cualquier otra cosa que deba ir dentro de la tarjeta (un aviso
+legal, un enlace de ayuda), no solo para el botón de Google.
 
 #### Modos de uso según el proyecto
 
@@ -188,6 +208,103 @@ export class LoginPageComponent {
 
 ---
 
+### `<lib-google-button>` — Entrar con Google
+
+Botón de «continuar con Google» con **Google Identity Services**: el token llega por POST sin
+salir de la página. Es la pareja de `spring-google` en el backend.
+
+```html
+<lib-google-button
+  (loginSuccess)="router.navigate(['/mi-cuenta'])"
+  (loginError)="console.warn($event)"
+/>
+```
+
+Eso es todo. El componente hace el viaje entero: pregunta al backend si hay login con Google,
+carga la librería de Google solo si la hay, consigue el `id_token`, lo canjea por una sesión
+con `AuthService.loginWithGoogle()` y emite `loginSuccess` **con la sesión ya abierta** — el
+token guardado e `isLoggedIn()` en `true`. Quien lo usa solo decide a dónde navegar.
+
+#### Inputs
+
+| Input | Tipo | Default | Descripción |
+|---|---|---|---|
+| `label` | `string` | `'Continuar con Google'` | Texto del botón |
+| `showDivider` | `boolean` | `true` | El «o» de separación. Quítalo si tu pantalla ya trae uno |
+| `dividerLabel` | `string` | `'o'` | Texto del separador |
+| `theme` | `'light' \| 'dark'` | `'light'` | Con qué tema se le pide el widget a Google. Se ve poco: va tapado |
+| `errorLabel` | `string` | — | Qué se enseña si Google no carga o el backend rechaza el token |
+| `exchange` | `boolean` | `true` | Si canjea el token por una sesión. **A `false` si tu web no usa el `AuthService` de esta librería** |
+
+#### Outputs
+
+| Output | Tipo | Cuándo |
+|---|---|---|
+| `loginSuccess` | `AuthResponse` | Sesión abierta y guardada (solo con `exchange = true`) |
+| `loginError` | `string` | Google no cargó, o el backend rechazó el token. El mensaje ya se enseña dentro |
+| `credential` | `string` | Solo con `exchange = false`: el `id_token`, para que lo canjees tú |
+
+#### Si tu web tiene su propio servicio de sesión
+
+Pon `exchange` a `false`. El botón se limita entonces a lo que solo él puede hacer —hablar con
+Google y conseguir el `id_token`— y te lo entrega:
+
+```html
+<lib-google-button [exchange]="false" (credential)="miAuth.entrarConGoogle($event)" />
+```
+
+**No lo dejes en `true` en ese caso.** El botón guardaría la sesión en el `AuthService` de la
+librería mientras tu web la guarda en el suyo: dos sesiones en el `localStorage`, y tu
+`logout()` borrando solo una — un JWT válido abandonado en el navegador de quien creía haber
+salido.
+
+#### Si no hay Google, no aparece nada
+
+El componente pregunta a `/api/auth/google/config`. Cuando `spring-google` está apagado ese
+endpoint **no existe y responde 404**, y eso se lee como «aquí no hay login con Google»: no se
+pinta nada, no se carga el script y la pantalla sigue funcionando con correo y contraseña.
+
+**El script de Google no va en el `index.html`** a propósito: así solo se descarga si de verdad
+hay login con Google configurado, y quien nunca abre la pantalla de entrar no le pide nada a
+Google.
+
+#### Esto no es `GOOGLE()` de proveedores sociales
+
+Son **dos flujos distintos** y no se mezclan:
+
+| | `<lib-google-button>` | `GOOGLE('/api/auth/google')` |
+|---|---|---|
+| Flujo | Google Identity Services: token por POST | Redirección a un endpoint OAuth tuyo |
+| Backend | `spring-google` | Lo montas tú |
+| La página | No se abandona | Se sale y se vuelve |
+
+Si usas `spring-google`, el componente. `GOOGLE()` se queda para quien ya tenga la redirección
+montada, o para Google con otros scopes (YouTube).
+
+#### Lo que hay que configurar fuera del código
+
+- **Consola de Google**: un cliente OAuth **por dominio**. Sin revisión de Google si los
+  permisos son `openid email profile`.
+- **La CSP**: `script-src`, `frame-src` y `connect-src` con `accounts.google.com`. Si falta
+  uno, **el botón no aparece y el error de consola no dice cuál**.
+
+#### Por qué el botón lleva dos capas
+
+Google solo entrega el token a través de **su** widget, y ese widget no se puede estilar:
+cuando detecta sesión de Google lo dibuja dentro de un `iframe` de otro origen, con fondo
+blanco, que en modo oscuro se ve como un marco. Tampoco vale recortarlo, porque cambia de
+tamaño según haya sesión y según lo largo que sea cada nombre.
+
+Lo que se hace es pintar debajo un botón propio y dejar el de Google encima con opacidad 0
+para que se lleve el clic. Es fiable porque **el ancho se lo pedimos nosotros**: se le pasa el
+que mide el botón visible, así que siempre lo cubre. De ahí el tope de **400 px** del
+envoltorio — Google no admite más, y un botón más ancho tendría extremos que no responden.
+
+> Si tocas ese CSS, **pruébalo con sesión de Google iniciada y sin ella**: son dos caminos de
+> renderizado distintos (iframe y HTML normal).
+
+---
+
 ### Proveedores sociales predefinidos
 
 Helpers que generan la configuración de cada proveedor. Solo necesitas la URL del endpoint OAuth de tu backend.
@@ -243,7 +360,14 @@ auth.logout()
 auth.hasRole('admin')
 auth.hasAnyRole('admin', 'editor')
 auth.setSession(response)  // para OAuth: llama esto cuando el backend devuelva el JWT
+
+auth.loginWithGoogle(credential)  // canjea el id_token de Google por una sesión
 ```
+
+`loginWithGoogle()` normaliza la respuesta igual que `login()` y deja la sesión abierta: al
+resto de la aplicación le da igual por dónde haya entrado cada cual. Normalmente **no hace
+falta llamarlo a mano** — lo hace `<lib-google-button>`. Y `logout()` avisa a Google para que
+vuelva a preguntar la próxima vez, en vez de reentrar solo en un ordenador compartido.
 
 El token y usuario se guardan en `localStorage` automáticamente y se restauran al recargar la página. Compatible con SSR.
 
@@ -255,8 +379,17 @@ inject(AuthService).configure({
   loginEndpoint:    '/api/v1/auth/login',
   registerEndpoint: '/api/v1/auth/register',
   tokenKey:         'mi_app_token',
+  // Si tu API está en otro dominio/puerto, decláralo aquí para que el interceptor
+  // le adjunte el token (a terceros nunca se les envía). Ver sección Interceptor.
+  trustedOrigins:   ['http://localhost:8080'],
+  // Solo si moviste los de spring-google de su sitio:
+  googleEndpoint:       '/api/v1/auth/google',
+  googleConfigEndpoint: '/api/v1/auth/google/config',
 });
 ```
+
+> **Caducidad:** al arrancar, `AuthService` descarta un JWT ya caducado (no arranca "logueado"
+> con un token muerto). `isTokenExpired()` está disponible si lo necesitas.
 
 ---
 
@@ -296,10 +429,19 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-A partir de ahí, todas las peticiones HTTP llevan automáticamente:
+A partir de ahí, las peticiones a **tu backend** llevan automáticamente:
 ```
 Authorization: Bearer eyJhbGciOi...
 ```
+
+> **Seguridad — a quién se le envía el token.** El interceptor solo adjunta el token a:
+> rutas **relativas** (`/api/...`), peticiones del **mismo origen** y los **`trustedOrigins`**
+> que configures. A cualquier otro dominio (APIs de terceros, analítica, mapas…) **no** se le
+> envía el token, para no filtrarlo fuera de tu backend.
+>
+> Si tu API vive en otro origen (p. ej. `http://localhost:8080` en desarrollo, o
+> `https://api.midominio.com`), **debes** añadirlo a `trustedOrigins` (ver *Configurar endpoints*)
+> o el token no se adjuntará a esas llamadas.
 
 ---
 

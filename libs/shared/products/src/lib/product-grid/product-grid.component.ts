@@ -46,9 +46,9 @@ export class ProductGridComponent {
 
   readonly skeletons = Array.from({ length: 6 });
 
-  private catName(cat: any): string {
+  private catName(cat: string | { name?: string } | null | undefined): string {
     if (!cat) return '';
-    return typeof cat === 'string' ? cat : (cat?.name ?? '');
+    return typeof cat === 'string' ? cat : (cat.name ?? '');
   }
 
   readonly categories = computed(() =>

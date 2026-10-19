@@ -8,5 +8,12 @@
     "lint": {
       "executor": "@nx/eslint:lint"
     }
-  }
+  },
+  "tags": [
+    "scope:shared",
+    "type:feature"
+  ],
+  "implicitDependencies": [
+    "theme"
+  ]
 }

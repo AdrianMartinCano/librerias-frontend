@@ -1,7 +1,7 @@
 import {
   Component,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
+  DestroyRef,
   input,
   output,
   signal,
@@ -43,7 +43,10 @@ export class UploadComponent {
     () => this.multiple() && this.files().length < this.maxFiles()
   );
 
-  private readonly cdr = inject(ChangeDetectorRef);
+  constructor() {
+    // Libera las object URLs de las previews al destruir el componente (evita fugas de memoria).
+    inject(DestroyRef).onDestroy(() => this.files().forEach((f) => this.revoke(f)));
+  }
 
   onDragOver(e: DragEvent): void {
     e.preventDefault();
@@ -72,6 +75,7 @@ export class UploadComponent {
   }
 
   removeFile(uploaded: UploadedFile): void {
+    this.revoke(uploaded);
     this.files.update((list) => list.filter((f) => f !== uploaded));
     this.fileRemoved.emit(uploaded.file);
     this.filesSelected.emit(this.files().map((f) => f.file));
@@ -91,40 +95,30 @@ export class UploadComponent {
 
     for (const file of incoming) {
       if (!this.isValidType(file)) {
-        const err: UploadError = {
-          file: file.name,
-          reason: 'type',
-          message: `"${file.name}" no es un formato permitido`,
-        };
-        newErrors.push(err);
-        this.uploadError.emit(err);
+        this.pushError(newErrors, file.name, 'type', `"${file.name}" no es un formato permitido`);
         continue;
       }
 
       if (file.size > this.maxSizeMb() * 1024 * 1024) {
-        const err: UploadError = {
-          file: file.name,
-          reason: 'size',
-          message: `"${file.name}" supera el límite de ${this.maxSizeMb()} MB`,
-        };
-        newErrors.push(err);
-        this.uploadError.emit(err);
+        this.pushError(newErrors, file.name, 'size', `"${file.name}" supera el límite de ${this.maxSizeMb()} MB`);
         continue;
       }
 
       const currentCount = this.files().length + valid.length;
       if (currentCount >= this.maxFiles()) {
-        const err: UploadError = {
-          file: file.name,
-          reason: 'max-files',
-          message: `Solo se permiten ${this.maxFiles()} archivo${this.maxFiles() === 1 ? '' : 's'}`,
-        };
-        newErrors.push(err);
-        this.uploadError.emit(err);
+        this.pushError(newErrors, file.name, 'max-files',
+          `Solo se permiten ${this.maxFiles()} archivo${this.maxFiles() === 1 ? '' : 's'}`);
         break;
       }
 
-      valid.push({ file, name: file.name, size: file.size, type: file.type });
+      valid.push({
+        file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        // Preview eficiente y síncrona: object URL en vez de base64 (se libera al quitar/destruir).
+        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+      });
     }
 
     this.errors.set(newErrors);
@@ -132,27 +126,24 @@ export class UploadComponent {
     if (valid.length === 0) return;
 
     if (!this.multiple()) {
+      this.files().forEach((f) => this.revoke(f));      // libera las que se reemplazan
+      valid.slice(1).forEach((f) => this.revoke(f));    // y las descartadas (solo se queda la 1ª)
       this.files.set(valid.slice(0, 1));
     } else {
       this.files.update((list) => [...list, ...valid]);
     }
 
-    this.generatePreviews(valid);
     this.filesSelected.emit(this.files().map((f) => f.file));
   }
 
-  private generatePreviews(uploaded: UploadedFile[]): void {
-    for (const entry of uploaded) {
-      if (!entry.type.startsWith('image/')) continue;
+  private pushError(bucket: UploadError[], file: string, reason: UploadError['reason'], message: string): void {
+    const err: UploadError = { file, reason, message };
+    bucket.push(err);
+    this.uploadError.emit(err);
+  }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        entry.preview = e.target?.result as string;
-        this.files.update((list) => [...list]); // fuerza detección de cambios
-        this.cdr.markForCheck();
-      };
-      reader.readAsDataURL(entry.file);
-    }
+  private revoke(entry: UploadedFile): void {
+    if (entry.preview?.startsWith('blob:')) URL.revokeObjectURL(entry.preview);
   }
 
   private isValidType(file: File): boolean {

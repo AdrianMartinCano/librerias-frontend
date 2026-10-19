@@ -1,6 +1,11 @@
 # @adrianmartincano/ng-reservations
 
-Sistema de reservas para Angular: calendario de disponibilidad (lib-booking-calendar), selector de horas (lib-booking-slots) y flujo completo de reserva multi-paso (lib-booking-form). Para citas, sesiones, mesas o cualquier servicio con horario.
+Sistema de reservas para Angular: calendario de disponibilidad (lib-booking-calendar), selector de horas (lib-booking-slots) y flujo completo de reserva multi-paso (lib-booking-form). Para citas, sesiones, mesas o cualquier servicio con horario. Soporta **varios profesionales** (multistaff): agenda por trabajador, vista de día con una columna por profesional, y un jefe que ve/gestiona todas las agendas.
+
+> **Formato e idioma:** los importes y las fechas del flujo de reserva se formatean con `Intl`
+> nativo (sin `registerLocaleData`). Por defecto euros en formato español; **configurable**
+> —otras monedas, conversión por tasas y selector en el navbar— con `provideLibFormat`. Ver
+> [README raíz → Formato e idioma](../../../README.md#formato-e-idioma).
 
 ---
 
@@ -25,7 +30,7 @@ npm install @adrianmartincano/ng-reservations
 |---|---|
 | `@angular/common` | `>=21.0.0` |
 | `@angular/core` | `>=21.0.0` |
-| `@adrianmartincano/ng-theme` | `>=0.0.1` |
+| `@adrianmartincano/ng-theme` | `>=1.0.0` |
 
 ---
 
@@ -42,9 +47,91 @@ npm install @adrianmartincano/ng-reservations
 Sistema de reservas multi-paso: servicio → fecha → hora → datos del cliente → confirmación. Útil para tatuadoras, peluquerías, clínicas, restaurantes o cualquier negocio de servicios.
 
 ```typescript
-import { BookingFormComponent, BookingCalendarComponent, BookingSlotsComponent, BookingStateService } from '@adrianmartincano/ng-reservations';
-import { BookingService, TimeSlot, BookingRequest } from '@adrianmartincano/ng-models';
+import {
+  BookingFormComponent, BookingCalendarComponent, BookingSlotsComponent,
+  BookingAdminComponent, PublicCalendarComponent, BookingStateService,
+  // Multistaff:
+  StaffAdminComponent, StaffDayTimelineComponent, ServicesAdminComponent,
+  BookingDetailModalComponent, VacationPickerComponent,
+} from '@adrianmartincano/ng-reservations';
+import { BookingService, TimeSlot, BookingRequest, BusySlot, Staff, StaffAdmin } from '@adrianmartincano/ng-models';
 ```
+
+> **Nuevo:**
+> - **`<lib-booking-admin>`** — panel de administración: calendario (cualquier día), servicio,
+>   hora y **duración en horas** personalizada. Además de **crear**, permite **editar** y **cancelar**
+>   las reservas existentes y **valida solapamientos** (no deja pisar el horario de otra cita el mismo
+>   día). Inputs: `services`, `bookings` (el padre posee el array), `loading`, `submitLabel`. Outputs:
+>   `created`, `updated` (`{ index, booking }`) y `cancelled` (`index`). Cada `BookingRequest` incluye
+>   `durationMinutes`. Par backend: `POST/PUT/DELETE /api/bookings` (acepta `durationMinutes`).
+>
+>   ```html
+>   <lib-booking-admin
+>     [services]="servicios" [bookings]="reservas()" calendarName="Reservas"
+>     (created)="add($event)" (updated)="edit($event)" (cancelled)="remove($event)"
+>     (imported)="addMany($event)"
+>   />
+>   ```
+> - **`<lib-reservations-settings>`** — formulario de ajustes editables en caliente: **horario por día
+>   con turnos partidos** (cada día, cero o varios tramos mañana/tarde; sin tramos = cerrado), intervalo
+>   de slots, **capacidad** y **vacaciones/días cerrados**. Autocontenido: carga y guarda contra
+>   `GET/PUT /api/admin/reservations/settings` (sesión admin). El backend genera la disponibilidad por
+>   tramo y rechaza días cerrados/vacaciones; `application.yml` solo aporta el horario por defecto.
+> - **Integración con calendarios (estándar `.ics`, sin OAuth)** — sirve para Google, Apple y Outlook:
+>   - **Exportar**: por reserva, menú "Añadir a calendario" (Google / Outlook / descargar `.ics`); o
+>     **todas** las reservas en un único `.ics` ("Exportar .ics").
+>   - **Importar**: sube un `.ics` (exportado de cualquier app) → previsualización → crea las reservas,
+>     **omitiendo las que se solapen**. Emite el output `imported` con los eventos aceptados.
+>   - Utilidades reutilizables exportadas: `buildIcs`, `parseIcs`, `googleCalendarUrl`, `outlookCalendarUrl`.
+> - **`<lib-public-calendar>`** — calendario **de solo lectura** que muestra la ocupación
+>   (`BusySlot[]`, sin datos del cliente). Par backend: `GET /api/busy?from&to`.
+> - **`<lib-booking-calendar>`** gana `mode` (`available` | `all` | `readonly`) y `busyDates`.
+> - **Calendario personalizable por CSS:** sus colores ya siguen tu marca (variables del theme), y su
+>   aspecto se re-estila con variables `--cal-*` (redondeo de días, color de seleccionado/ocupado/hoy…)
+>   **sin tocar el componente**. Ver [README de `ng-theme` → Calendario de reservas](../theme/README.md).
+> - **`CalendarBlockComponent`** — bloque del CMS (opt-in) que envuelve `lib-public-calendar` y
+>   consulta `/api/busy`. Para usarlo dentro de `ng-cms`:
+>   `provideCmsBlocks({ calendar: CalendarBlockComponent })` (de `@adrianmartincano/ng-cms`). Así el
+>   CMS solo depende de reservations si **tú** registras el bloque.
+
+---
+
+## Multistaff — varios profesionales
+
+Para negocios con varios trabajadores (peluquería/tatuador con varios artistas, clínica con varios
+profesionales…). Todos los componentes son **controlados**: el *host* posee los datos y hace el HTTP.
+Con **0 o 1 profesional** la UI se comporta como antes (sin selector ni columnas), así que es
+retrocompatible.
+
+| Componente | Para qué | Par backend |
+|---|---|---|
+| `<lib-staff-admin>` | CRUD de profesionales: datos, foto (subida), color, orden, **horario propio** (turnos por día), **vacaciones** y **servicios que realiza**; vínculo a cuenta o **crear cuenta nueva** (email+contraseña) | `…/admin/reservations/staff`, `POST /api/admin/users` |
+| `<lib-services-admin>` | Editar el **catálogo** de servicios (precio, duración, color…) | `…/admin/reservations/services` |
+| `<lib-staff-day-timeline>` | **Vista de día** con una columna por profesional; flechas de día anterior/siguiente; días pasados en solo lectura | `GET …/reservations/bookings/day` |
+| `<lib-booking-detail-modal>` | Detalle de una cita con **edición completa** y cancelar (`readonly` para días pasados) | `PATCH/PUT …/bookings/{id}` |
+| `<lib-vacation-picker>` | Selección de varias fechas sobre el calendario themeable (día suelto / rango / limpiar todo) — usado por staff-admin | — |
+
+**Flujo público con profesional.** `<lib-booking-form>` admite el input `profesionales: Staff[]`. Con
+2+ aparece el paso **"¿con quién?"** (un profesional concreto o *cualquiera disponible*) entre servicio
+y fecha, y emite `profesionalSeleccionado` (para que recargues la disponibilidad con `?staffId=`). El
+`BookingRequest` resultante lleva `staffId` (omitido = "cualquiera", el backend asigna el primero libre).
+
+**Solape por trabajador.** `<lib-booking-admin>` gana el input `profesionales` y un selector de
+profesional; el solapamiento se valida **por agenda** (dos profesionales pueden coincidir en hora).
+
+```html
+<!-- Panel del jefe: equipo, catálogo y agenda del día -->
+<lib-services-admin [services]="servicios()" (created)="..." (updated)="..." (toggled)="..." (deleted)="..." />
+<lib-staff-admin [staff]="equipo()" [users]="cuentas()" [services]="servicios()"
+  (created)="..." (updated)="..." (toggled)="..." (deleted)="..." (includeMe)="..." />
+<lib-staff-day-timeline [staff]="profesionales()" [bookings]="reservas()" [date]="dia()"
+  [readonly]="dia() < hoy" (dateChange)="dia.set($event)" (bookingOpened)="abrirDetalle($event)" />
+```
+
+> **Roles.** El jefe es `ROLE_ADMIN` (ve/gestiona todo); un trabajador con cuenta es `ROLE_STAFF` (el
+> backend lo acota a su propia agenda). El **primer admin** lo siembra el backend al arrancar
+> (`pimon.users.create-default-admin`). Un jefe que además atiende = `ROLE_ADMIN` + su propia ficha de
+> profesional ("Incluirme").
 
 ---
 
@@ -191,7 +278,13 @@ interface BookingRequest {
   clientEmail: string;
   clientPhone: string;
   notes?:      string;
+  durationMinutes?: number;  // duración real (override admin); si falta, la del servicio
+  staffId?:    string;       // profesional asignado (omitido = "cualquiera")
+  staffName?:  string;
+  staffColor?: string;
 }
+
+interface Staff { id: string; name: string; color?: string; imageUrl?: string; }
 ```
 
 ### Casos de uso

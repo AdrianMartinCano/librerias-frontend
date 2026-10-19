@@ -114,17 +114,25 @@
   --radius-full: 9999px;
   --border-width: 1px;
 
-  /* Sombras */
-  --shadow-xs:  0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md:  0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg:  0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl:  0 20px 25px rgba(0, 0, 0, 0.1);
+  /* Sombras — estratificadas (dos capas) y con tinte frío para un look más premium */
+  --shadow-color: 15, 23, 42;   /* slate-900: sombra menos "sucia" que el negro puro */
+  --shadow-xs:  0 1px 2px rgba(var(--shadow-color), 0.05);
+  --shadow-sm:  0 1px 2px rgba(var(--shadow-color), 0.04), 0 2px 4px rgba(var(--shadow-color), 0.05);
+  --shadow-md:  0 2px 4px rgba(var(--shadow-color), 0.05), 0 6px 12px rgba(var(--shadow-color), 0.07);
+  --shadow-lg:  0 4px 8px rgba(var(--shadow-color), 0.05), 0 12px 24px rgba(var(--shadow-color), 0.09);
+  --shadow-xl:  0 8px 16px rgba(var(--shadow-color), 0.06), 0 24px 48px rgba(var(--shadow-color), 0.12);
+
+  /* Curvas de aceleración — un "out" expresivo da sensación de respuesta inmediata */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
   /* Transiciones */
-  --transition-fast:  120ms ease;
-  --transition-base:  200ms ease;
-  --transition-slow:  300ms ease;
+  --transition-fast:  120ms var(--ease-out);
+  --transition-base:  200ms var(--ease-out);
+  --transition-slow:  320ms var(--ease-out);
+
+  /* Anillo de foco accesible — reutilizable en cualquier control */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-accent) 38%, transparent);
 
   /* Layout */
   --container-max:    1280px;
@@ -138,6 +146,20 @@
   --z-overlay:  250;
   --z-modal:    300;
   --z-toast:    400;
+
+  /* ── Calendario de reservas (lib-booking-calendar / lib-public-calendar) ──
+     Personaliza el calendario SIN tocar el componente: redefine estas variables
+     en tu :root global (p. ej. .lib-cal--pill { --cal-day-radius: 999px }).
+     Por defecto derivan del acento/bordes del theme, así que ya respetan tu marca. */
+  --cal-day-radius:      var(--radius-md);
+  --cal-day-hover-bg:    color-mix(in srgb, var(--color-accent) 12%, transparent);
+  --cal-day-hover-fg:    var(--color-accent);
+  --cal-selected-bg:     var(--color-accent);
+  --cal-selected-fg:     #fff;
+  --cal-today-ring:      color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
+  --cal-busy-bg:         color-mix(in srgb, var(--color-accent) 16%, transparent);
+  --cal-busy-fg:         var(--color-accent-hover);
+  --cal-nav-hover-bg:    color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
 
 /* ─── MODO OSCURO ────────────────────────────── */
@@ -148,6 +170,9 @@
   Solo cambian fondos, bordes y textos.
 */
 [data-theme="dark"] {
+  /* Avisa al navegador: scrollbars, inputs nativos y form controls se pintan en oscuro */
+  color-scheme: dark;
+  --shadow-color: 0, 0, 0;
   --color-background:   color-mix(in srgb, var(--p1) 12%, #0f0f0f);
   --color-surface:      color-mix(in srgb, var(--p1) 15%, #111);
   --color-surface-alt:  color-mix(in srgb, var(--p1) 22%, #111);
@@ -170,6 +195,7 @@ html {
   font-size: 16px;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  color-scheme: light;
 }
 
 body {
@@ -180,6 +206,8 @@ body {
   background-color: var(--color-background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Controles nativos (checkbox, radio, range) heredan la marca sin clases extra */
+  accent-color: var(--color-accent);
 }
 
 img, video {
@@ -206,12 +234,31 @@ ul, ol {
   list-style: none;
 }
 
+/* ─── FOCO ACCESIBLE ─────────────────────────── */
+/*
+  Anillo de foco visible solo para navegación por teclado (:focus-visible),
+  no al hacer clic con ratón. Quality floor de accesibilidad sin ruido visual.
+*/
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+/* Para elementos a los que ya damos un box-shadow propio (inputs, botones),
+   cada componente refuerza el foco con su propia regla; este es el fallback. */
+
 /* ─── TIPOGRAFÍA ─────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
   color: var(--color-text);
+  /* Reparte las palabras para que no quede una "viuda" suelta en la última línea */
+  text-wrap: balance;
+  letter-spacing: -0.011em;
 }
+
+h1, h2 { letter-spacing: -0.022em; }
 
 h1 { font-size: var(--font-size-3xl); }
 h2 { font-size: var(--font-size-2xl); }
@@ -229,6 +276,8 @@ h6 { font-size: var(--font-size-sm); }
 p {
   line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
+  /* Evita líneas finales de una sola palabra sin reflujo perceptible */
+  text-wrap: pretty;
 }
 
 /* ─── CONTENEDOR ─────────────────────────────── */
@@ -478,6 +527,23 @@ p {
 .animate-delay-4 { animation-delay: 500ms; }
 .animate-delay-5 { animation-delay: 700ms; }
 
+/* ─── MOVIMIENTO REDUCIDO ────────────────────── */
+/*
+  Respeta a quien pide menos movimiento (vestibular / preferencia del SO).
+  No elimina las transiciones: las reduce a casi instantáneas para que la UI
+  siga sintiéndose viva sin desplazamientos ni rebotes que mareen.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ─── FORMULARIOS BASE ───────────────────────── */
 /*
   Clases reutilizables en cualquier componente.
@@ -564,6 +630,56 @@ p {
   color: var(--color-danger, #dc3545);
   margin-top: var(--space-1, 0.25rem);
 }
+
+/* ─── CONTENIDO MARKDOWN ─────────────────────── */
+/*
+  Estilo del HTML que genera `@adrianmartincano/ng-markdown` (mensajes del foro,
+  comentarios del blog). Vive aquí y no en la lib a propósito: ese HTML se pinta
+  con [innerHTML], y el contenido inyectado así NO recibe los atributos de
+  encapsulación de Angular, por lo que los `styles` del componente no le llegan.
+*/
+.lib-md > *:first-child { margin-top: 0; }
+.lib-md > *:last-child { margin-bottom: 0; }
+
+.lib-md p {
+  margin: 0 0 var(--space-3, 0.75rem);
+  line-height: var(--line-height-relaxed, 1.65);
+}
+
+.lib-md strong { font-weight: var(--font-weight-bold, 700); }
+.lib-md em { font-style: italic; }
+.lib-md u { text-decoration: underline; }
+.lib-md s { text-decoration: line-through; opacity: 0.75; }
+
+.lib-md code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.9em;
+  background: rgb(0 0 0 / 0.06);
+  border-radius: var(--radius-sm, 3px);
+  padding: 0.1em 0.35em;
+}
+
+.lib-md a {
+  color: var(--color-accent, #15616d);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+.lib-md blockquote {
+  margin: 0 0 var(--space-3, 0.75rem);
+  padding: var(--space-1, 0.25rem) var(--space-3, 0.75rem);
+  border-left: 3px solid var(--color-border, #cdbf9f);
+  background: rgb(0 0 0 / 0.03);
+  color: var(--color-text-secondary, #5c5346);
+}
+
+.lib-md ul,
+.lib-md ol {
+  margin: 0 0 var(--space-3, 0.75rem);
+  padding-left: var(--space-6, 1.5rem);
+}
+
+.lib-md li { margin-bottom: var(--space-1, 0.25rem); }
 
 /* ─── BREAKPOINT HELPERS ─────────────────────── */
 /*

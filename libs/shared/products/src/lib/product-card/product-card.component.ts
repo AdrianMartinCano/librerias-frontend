@@ -4,9 +4,10 @@ import {
   input,
   output,
   computed,
+  inject,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Product } from '@org/models';
+import { Product, FormatService } from '@org/models';
 
 @Component({
   selector: 'lib-product-card',
@@ -48,7 +49,7 @@ export class ProductCardComponent {
   readonly categoryName = computed(() => {
     const cat = this.product().category;
     if (!cat) return '';
-    return typeof cat === 'string' ? cat : (cat as any).name ?? '';
+    return typeof cat === 'string' ? cat : ((cat as { name?: string }).name ?? '');
   });
 
   readonly discount = computed(() => {
@@ -66,7 +67,9 @@ export class ProductCardComponent {
     this.addToCart.emit(this.product());
   }
 
+  private readonly fmt = inject(FormatService);
+
   formatPrice(price: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(price);
+    return this.fmt.money(price);
   }
 }
